@@ -310,8 +310,7 @@ const ROLES = {
     name: 'Muhammad Ali', tag: 'IELTS Student', emoji: '\u{1F393}',
     color: 'var(--blue)', email: 'muhammad@radian.uz',
     nav: [
-      {s:'Asosiy', i:[{e:'\u{1F4CA}',l:'Dashboard',p:'dashboard'}]},
-      {s:"Ta'lim", i:[{e:'\u{1F4DA}',l:"Mening kurslarim",p:'mycourses'},{e:'\u{1F4C5}',l:'Jadvalim',p:'myschedule'},{e:'\u{2705}',l:'Davomatim',p:'myattendance'},{e:'\u{1F4DD}',l:'Homework',p:'homework'},{e:'\u{1F4CA}',l:'Natijalarim',p:'results'}]},
+      {s:"Ta'lim", i:[{e:'\u{1F4DA}',l:"Mening kurslarim",p:'mycourses'},{e:'\u{1F4C5}',l:'Jadvalim',p:'myschedule'},{e:'\u{2705}',l:'Davomatim',p:'myattendance'},{e:'\u{1F4CA}',l:'Natijalarim',p:'results'}]},
       {s:'Moliya', i:[{e:'\u{1F4B0}',l:"To'lovlarim",p:'mypayments'}]}
     ],
     stats: [
@@ -387,10 +386,17 @@ function handleLogin(e) {
   if (!selectedRole) return;
   showDashboard(selectedRole);
 }
+function firstPageOf(role) {
+  const r = ROLES[role];
+  if (r && r.nav && r.nav.length && r.nav[0].i && r.nav[0].i.length) {
+    return r.nav[0].i[0].p || 'dashboard';
+  }
+  return 'dashboard';
+}
 function showDashboard(r) {
   document.getElementById('loginPage').classList.add('hidden');
   document.getElementById('dashboard').classList.add('visible');
-  currentPage = 'dashboard';
+  currentPage = firstPageOf(r);
   renderSidebar();
   renderPageContent();
 }
@@ -469,7 +475,7 @@ function renderPage(r) {
     homework: renderHomework, children: renderChildren,
     // aliases
     subscriptions: renderAllUsers, analytics: renderReports, debtors: renderPayments, invoices: renderPayments,
-    monthlyincome: renderReports, expenses: renderReports, grades: renderStudents, results: renderMyAttendance,
+    monthlyincome: renderReports, expenses: renderReports, grades: renderStudents, results: renderResults,
     mypayments: renderMyCourses
   };
   return (P[currentPage] || P.dashboard)();
@@ -752,6 +758,24 @@ function renderHomework() {
   return `<div style="margin-bottom:20px"><h3 style="font-size:16px;font-weight:700">\u{1F4DA} Homework</h3></div><div class="card"><table class="table"><thead><tr><th>Topshiriq</th><th>Guruh</th><th>Muddat</th><th>Holat</th></tr></thead><tbody><tr><td>IELTS Writing Task 2</td><td>IELTS-24</td><td>22.08.2026</td><td><span class="badge red">Bajarmadi</span></td></tr><tr><td>Grammar Exercise Ch.5</td><td>ENG-12</td><td>21.08.2026</td><td><span class="badge green">Bajarildi</span></td></tr><tr><td>Vocabulary Test</td><td>IELTS-26</td><td>25.08.2026</td><td><span class="badge gold">Kutilmoqda</span></td></tr></tbody></table></div>`;
 }
 
+
+function renderResults() {
+  const results = [
+    {f:'IELTS', b:85, i:'Ajoyib rivojlanish, o\u2019qish tezligi sezilarli yaxshilandi', d:'20.08.2026', t:'Azizbek'},
+    {f:'Matematika', b:78, i:'Masalalarni yaxshi tahlil qiladi, amaliyotda muvaffaqiyatli', d:'18.08.2026', t:'Abdulloh'},
+    {f:'Ingliz tili', b:92, i:'Grammatika va gapirish kuchli, davom eting', d:'15.08.2026', t:'Madina'},
+    {f:'Fizika', b:88, i:'Amaliy ishlarni a\u2019lo bajaradi', d:'12.08.2026', t:'Dilshod'},
+    {f:'Ona tili', b:81, i:'Insho yozishda yaxshi natija', d:'10.08.2026', t:'Nodir'}
+  ];
+  const avg = Math.round(results.reduce((a, r) => a + r.b, 0) / results.length);
+  const rows = results.map(r => {
+    const c = r.b >= 85 ? 'var(--green)' : r.b >= 75 ? 'var(--gold)' : 'var(--red)';
+    return `<tr><td><strong>${r.f}</strong></td><td style="color:${c};font-weight:700">${r.b}%</td><td style="font-size:12px;color:var(--text2)">${r.i}</td><td>${r.t}</td><td style="font-size:11px;color:var(--muted)">${r.d}</td></tr>`;
+  }).join('');
+  return `<h3 style="font-size:16px;font-weight:700;margin-bottom:20px">\u{1F4CA} Natijalarim</h3>
+  <div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><div style="font-size:11px;color:var(--muted)">O\u2019RTACHA BAHO</div><div style="font-size:28px;font-weight:800;color:var(--green)">${avg}%</div></div><div style="text-align:right"><div style="font-size:11px;color:var(--muted)">FANLAR</div><div style="font-size:28px;font-weight:800;color:var(--navy)">${results.length}</div></div></div></div>
+  <div class="card"><div class="card-title">\u{1F4DD} O\u2019qituvchi yozgan natijalar</div><table class="table"><thead><tr><th>Fan</th><th>Baho</th><th>O\u2019qituvchi izohi</th><th>O\u2019qituvchi</th><th>Sana</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
 
 function renderChildren() {
   return `<div class="card" style="border-left:3px solid var(--gold)"><div class="card-title">\u{1F393} Farzandim — Muhammad Ali</div>  <div class="rgrid-4"><div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:18px;font-weight:800;color:var(--green)">94%</div><div style="font-size:11px;color:var(--text2)">Davomat</div></div><div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:18px;font-weight:800;color:var(--blue)">82%</div><div style="font-size:11px;color:var(--text2)">Baholar</div></div><div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:18px;font-weight:800;color:var(--navy)">IELTS</div><div style="font-size:11px;color:var(--text2)">Kurs</div></div><div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:18px;font-weight:800;color:var(--green)">Paid</div><div style="font-size:11px;color:var(--text2)">To'lov</div></div></div></div>`;
