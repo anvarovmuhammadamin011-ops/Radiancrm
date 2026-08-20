@@ -213,9 +213,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <h2>Xush kelibsiz 👋</h2>
     <div class="sub">Davom etish uchun turingizni tanlang</div>
     <div class="role-grid" id="roleGrid">
-      <div class="role-card full" data-role="super_admin" onclick="selectRole('super_admin')">
-        <div class="ri">👑</div><div class="rn" style="color:var(--gold)">Super Admin</div><div class="rd">Butun platforma</div>
-      </div>
       <div class="role-card" data-role="admin" onclick="selectRole('admin')">
         <div class="ri">🏢</div><div class="rn">Admin</div><div class="rd">Markaz direktori</div>
       </div>
@@ -233,14 +230,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
     <form onsubmit="handleLogin(event)">
-      <div class="form-group"><label>Email</label><input class="form-input" type="email" id="emailInput" placeholder="email@radian.uz" /></div>
-      <div class="form-group"><label>Parol</label><input class="form-input" type="password" id="passwordInput" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022" /></div>
+      <div class="form-group"><label>Email</label><input class="form-input" type="email" id="emailInput" placeholder="email@radian.uz" oninput="updateLoginBtn()" /></div>
+      <div class="form-group"><label>Parol</label><input class="form-input" type="password" id="passwordInput" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022" oninput="updateLoginBtn()" /></div>
       <button class="login-btn" type="submit" id="loginBtn" disabled>Kirish →</button>
     </form>
     <div class="demo-section">
       <p>Tezkor kirish:</p>
       <div class="demo-chips">
-        <div class="demo-chip gold" onclick="quickLogin('super_admin')">👑 Super Admin</div>
         <div class="demo-chip" onclick="quickLogin('admin')">🏢 Admin</div>
         <div class="demo-chip" onclick="quickLogin('teacher')">🧑‍🏫 O'qituvchi</div>
         <div class="demo-chip" onclick="quickLogin('student')">👨‍🎓 O'quvchi</div>
@@ -263,7 +259,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 const ROLES = {
   super_admin: {
     name: 'Super Admin', tag: 'Platform Owner', emoji: '\u{1F451}',
-    color: 'var(--gold)', email: 'super@radian.uz',
+    color: 'var(--gold)', email: 'anvarovmuhammadamin011@gmail.com',
     nav: [
       {s:'Platform', i:[{e:'\u{1F4CA}',l:'Dashboard',p:'dashboard'},{e:'\u{1F3E2}',l:'Academies',b:'128',p:'allusers'},{e:'\u{1F465}',l:'Barcha foydalanuvchilar',b:'24,582',p:'allusers'}]},
       {s:'SaaS', i:[{e:'\u{1F4B3}',l:'Subscriptions',p:'subscriptions'},{e:'\u{1F4C8}',l:'Analytics',p:'analytics'}]},
@@ -373,8 +369,24 @@ function selectRole(r) {
   document.getElementById('passwordInput').value = 'password123';
   document.getElementById('loginBtn').disabled = false;
 }
+function updateLoginBtn() {
+  const e = document.getElementById('emailInput').value.trim();
+  const p = document.getElementById('passwordInput').value;
+  document.getElementById('loginBtn').disabled = !(e && p);
+}
 function quickLogin(r) { selectedRole = r; showDashboard(r); }
-function handleLogin(e) { e.preventDefault(); if (!selectedRole) return; showDashboard(selectedRole); }
+function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('emailInput').value.trim().toLowerCase();
+  const pwd = document.getElementById('passwordInput').value;
+  if (email === 'anvarovmuhammadamin011@gmail.com' && pwd === 'muhammadamin02112011') {
+    selectedRole = 'super_admin';
+    showDashboard('super_admin');
+    return;
+  }
+  if (!selectedRole) return;
+  showDashboard(selectedRole);
+}
 function showDashboard(r) {
   document.getElementById('loginPage').classList.add('hidden');
   document.getElementById('dashboard').classList.add('visible');
