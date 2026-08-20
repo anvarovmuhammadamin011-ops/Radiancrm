@@ -1,0 +1,15 @@
+{
+  "name": "radian-telegram-bot",
+  "version": "1.0.0",
+  "description": "Radian O'quv Markazi - Telegram Mini App Bot",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "setup": "node setup.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^2.7.0"
+  }
+}
