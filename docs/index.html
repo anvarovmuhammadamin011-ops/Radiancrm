@@ -142,12 +142,106 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .course-card .cc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
 .course-card .cc-tag{font-size:9px;background:rgba(32,43,77,.06);color:var(--text2);padding:2px 6px;border-radius:4px}
 .hidden{display:none !important}
-@media(max-width:1200px){.stats-grid{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.stats-grid{grid-template-columns:1fr 1fr}}
+
+/* ─── Responsive helpers ─── */
+.menu-btn{display:none;background:none;border:none;font-size:22px;line-height:1;cursor:pointer;color:var(--text);padding:4px 8px;margin-right:8px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(32,43,77,.45);z-index:25}
+.rgrid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.rgrid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pflex-3{display:flex;gap:12px;margin-bottom:20px}
+.hflex{display:flex;gap:16px;margin-bottom:20px;align-items:center}
+
+/* ─── Device simulation (works in fixed-width preview panes) ─── */
+.vp-sim{container-type:inline-size;width:100%;margin:0 auto;transition:width .3s ease;min-height:100vh;max-height:100vh;overflow-y:auto}
+.vp-sim.dev-phone{width:390px;box-shadow:0 0 0 1px var(--border)}
+.vp-sim.dev-tablet{width:820px;box-shadow:0 0 0 1px var(--border)}
+.vp-sim.dev-laptop{width:100%}
+.dev-bar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:6px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:6px;box-shadow:0 8px 24px rgba(32,43,77,.18);z-index:200}
+.dev-bar button{border:none;background:var(--bg);color:var(--text2);font-size:12px;font-weight:600;padding:8px 14px;border-radius:9px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px}
+.dev-bar button:hover{color:var(--text)}
+.dev-bar button.active{background:var(--navy);color:#fff}
+
+@media(max-width:1200px){
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .two-col{grid-template-columns:1fr}
+  .rgrid-4{grid-template-columns:repeat(2,1fr)}
+  .search-box{width:160px}
+}
+@container(max-width:1200px){
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .two-col{grid-template-columns:1fr}
+  .rgrid-4{grid-template-columns:repeat(2,1fr)}
+  .search-box{width:160px}
+}
+@media(max-width:768px){
+  body{overflow:auto}
+  .login-page{flex-direction:column;height:auto;min-height:100vh}
+  .login-left{padding:28px 20px}
+  .login-features{display:none}
+  .login-right{width:100%;border-left:none;padding:28px 20px}
+  .sidebar{width:260px;transform:translateX(-100%);transition:transform .25s ease;z-index:30;box-shadow:4px 0 16px rgba(0,0,0,.25)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.show{display:block}
+  .menu-btn{display:inline-flex;align-items:center}
+  .main{margin-left:0}
+  .topbar{padding:14px 16px}
+  .topbar-right{gap:10px}
+  .search-box{display:none}
+  .content{padding:16px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .rgrid-4{grid-template-columns:1fr 1fr}
+  .rgrid-2{grid-template-columns:1fr}
+  .pflex-3{flex-direction:column}
+  .welcome{flex-wrap:wrap;gap:12px}
+  .hflex{flex-wrap:wrap}
+  .card{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .table{min-width:560px}
+}
+@container(max-width:768px){
+  .login-page{flex-direction:column;height:auto;min-height:100vh}
+  .login-left{padding:28px 20px}
+  .login-features{display:none}
+  .login-right{width:100%;border-left:none;padding:28px 20px}
+  .sidebar{width:260px;transform:translateX(-100%);transition:transform .25s ease;z-index:30;box-shadow:4px 0 16px rgba(0,0,0,.25)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.show{display:block}
+  .menu-btn{display:inline-flex;align-items:center}
+  .main{margin-left:0}
+  .topbar{padding:14px 16px}
+  .topbar-right{gap:10px}
+  .search-box{display:none}
+  .content{padding:16px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .rgrid-4{grid-template-columns:1fr 1fr}
+  .rgrid-2{grid-template-columns:1fr}
+  .pflex-3{flex-direction:column}
+  .welcome{flex-wrap:wrap;gap:12px}
+  .hflex{flex-wrap:wrap}
+  .card{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .table{min-width:560px}
+}
+@media(max-width:480px){
+  .sidebar{width:85%}
+  .stats-grid{grid-template-columns:1fr}
+  .rgrid-4{grid-template-columns:1fr}
+  .login-brand h1{font-size:28px}
+  .topbar h2{font-size:16px}
+  .user-pill .name,.user-pill .role{display:none}
+}
+@container(max-width:480px){
+  .sidebar{width:85%}
+  .stats-grid{grid-template-columns:1fr}
+  .rgrid-4{grid-template-columns:1fr}
+  .login-brand h1{font-size:28px}
+  .topbar h2{font-size:16px}
+  .user-pill .name,.user-pill .role{display:none}
+}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 </style>
 </head>
 <body>
+
+<div class="vp-sim dev-laptop" id="vpSim">
 
 <!-- LOGIN -->
 <div class="login-page" id="loginPage">
@@ -210,7 +304,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- DASHBOARD -->
 <div class="dashboard" id="dashboard">
   <div class="sidebar" id="sidebar"></div>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
   <div class="main" id="mainContent"></div>
+</div>
+
+</div><!-- /vp-sim -->
+
+<div class="dev-bar" id="devBar">
+  <button class="active" onclick="setDevice('laptop',this)">\u{1F4BB} Laptop</button>
+  <button onclick="setDevice('tablet',this)">\u{1F4DF} Planshet</button>
+  <button onclick="setDevice('phone',this)">\u{1F4F1} Telefon</button>
 </div>
 
 <script>
@@ -340,6 +443,7 @@ function showDashboard(r) {
 function logout() {
   document.getElementById('dashboard').classList.remove('visible');
   document.getElementById('loginPage').classList.remove('hidden');
+  closeSidebar();
   selectedRole = null;
   currentPage = 'dashboard';
   studFilter = 'all';
@@ -373,7 +477,25 @@ function navClick(el) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   el.classList.add('active');
   currentPage = el.dataset.page || 'dashboard';
+  closeSidebar();
   renderPageContent();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+}
+
+function setDevice(dev, btn) {
+  const sim = document.getElementById('vpSim');
+  sim.classList.remove('dev-laptop', 'dev-tablet', 'dev-phone');
+  sim.classList.add('dev-' + dev);
+  document.querySelectorAll('#devBar button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
 }
 
 // ─── Page Rendering ───
@@ -386,7 +508,7 @@ function renderPageContent() {
   const dayOfWeek = today.getDay();
   const dayStr = dayNames[dayOfWeek === 0 ? 6 : dayOfWeek - 1];
   const dateStr = `${dayOfWeek === 0 ? 6 : dayOfWeek - 1 < 0 ? 0 : dayOfWeek === 0 ? 6 : dayOfWeek - 1}.${String(today.getMonth() + 1).padStart(2, '0')}.${today.getFullYear()}`;
-  const h = `<div class="topbar"><div><h2>${r.emoji} ${r.tag}</h2></div><div class="topbar-right"><input class="search-box" placeholder="\u{1F50D} Qidirish..."/><div class="user-pill"><div class="avatar" style="background:${r.color};font-size:10px">${initials}</div><div><div class="name">${r.name}</div><div class="role">${r.tag}</div></div></div></div></div><div class="content">${renderPage(r)}</div>`;
+  const h = `<div class="topbar"><button class="menu-btn" onclick="toggleSidebar()" aria-label="Menyu">\u{2630}</button><div><h2>${r.emoji} ${r.tag}</h2></div><div class="topbar-right"><input class="search-box" placeholder="\u{1F50D} Qidirish..."/><div class="user-pill"><div class="avatar" style="background:${r.color};font-size:10px">${initials}</div><div><div class="name">${r.name}</div><div class="role">${r.tag}</div></div></div></div></div><div class="content">${renderPage(r)}</div>`;
   document.getElementById('mainContent').innerHTML = h;
   if (document.getElementById('revenueChart')) animateChart();
 }
@@ -418,7 +540,7 @@ function renderDashboard(r) {
   return `<div class="welcome"><div class="w-left"><h3>${r.emoji} Xush kelibsiz, ${r.name}!</h3><p>Radian O'quv Markazi</p></div><div class="w-right"><span class="w-badge">\u{1F514} 5</span></div></div>
   <div class="stats-grid">${statsHtml}</div>
   <div class="two-col"><div class="card"><div class="card-title">\u{1F4C8} Oylik daromad</div><div class="chart-bars" id="revenueChart">${bars}</div></div>
-  <div class="card"><div class="card-title">\u{1F4CA} Statistika</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center"><div style="font-size:18px;font-weight:800;color:var(--green)">+142</div><div style="font-size:11px;color:var(--text2)">Bu oy qo'shilgan</div></div><div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center"><div style="font-size:18px;font-weight:800;color:var(--navy)">+1,103</div><div style="font-size:11px;color:var(--text2)">Jami (yil)</div></div></div></div></div>
+  <div class="card"><div class="card-title">\u{1F4CA} Statistika</div><div class="rgrid-2"><div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center"><div style="font-size:18px;font-weight:800;color:var(--green)">+142</div><div style="font-size:11px;color:var(--text2)">Bu oy qo'shilgan</div></div><div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center"><div style="font-size:18px;font-weight:800;color:var(--navy)">+1,103</div><div style="font-size:11px;color:var(--text2)">Jami (yil)</div></div></div></div></div>
   <div class="card" style="margin-bottom:24px"><div class="card-title">\u{26A0}\u{FE0F} Qarzdorlar</div><table class="table"><thead><tr><th>O'quvchi</th><th>Guruh</th><th>Qarz</th><th>Muddat</th><th>Holat</th></tr></thead><tbody><tr><td><strong>Madina Karimova</strong></td><td>MAT-02</td><td style="color:var(--red);font-weight:700">200,000 so'm</td><td>25.08.2026</td><td><span class="badge gold">Kutilmoqda</span></td></tr><tr><td><strong>Javohir Karimov</strong></td><td>PHY-01</td><td style="color:var(--red);font-weight:700">350,000 so'm</td><td>15.08.2026</td><td><span class="badge red">Muddati o'tgan</span></td></tr><tr><td><strong>Azizbek</strong></td><td>BIO-01</td><td style="color:var(--red);font-weight:700">500,000 so'm</td><td>01.08.2026</td><td><span class="badge red">Muddati o'tgan</span></td></tr><tr><td><strong>Nodirbek Sattorov</strong></td><td>CHEM-01</td><td style="color:var(--red);font-weight:700">200,000 so'm</td><td>22.08.2026</td><td><span class="badge gold">Qisman to'langan</span></td></tr></tbody></table></div>`;
 }
 
@@ -555,7 +677,7 @@ function renderAttendance() {
     const badge = a.st === 'present' ? '<span class="badge green">✅ Keldi</span>' : a.st === 'absent' ? '<span class="badge red">❌ Kelmadi</span>' : '<span class="badge gold">🟡 Kechikdi</span>';
     return `<tr><td><strong>${a.n}</strong></td><td><span class="badge navy">${a.gr}</span></td><td>${badge}</td></tr>`;
   }).join('');
-  return `<div style="display:flex;gap:16px;margin-bottom:20px;align-items:center"><h3 style="font-size:18px;font-weight:700">\u{2705} Davomat \u2014 Bugun</h3><span class="badge green" style="font-size:13px;padding:6px 14px">${present + late}/${att.length} Keldi</span><span class="badge navy" style="font-size:13px;padding:6px 14px">${rate}%</span></div><div class="card"><table class="table"><thead><tr><th>O'quvchi</th><th>Guruh</th><th>Holat</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  return `  <div class="hflex"><h3 style="font-size:18px;font-weight:700">\u{2705} Davomat \u2014 Bugun</h3><span class="badge green" style="font-size:13px;padding:6px 14px">${present + late}/${att.length} Keldi</span><span class="badge navy" style="font-size:13px;padding:6px 14px">${rate}%</span></div><div class="card"><table class="table"><thead><tr><th>O'quvchi</th><th>Guruh</th><th>Holat</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
 function renderExams() {
@@ -597,7 +719,7 @@ function renderPayments() {
     return `<tr><td><strong>${p.n}</strong></td><td>${p.co}</td><td>${p.am}</td><td>${p.dt}</td><td>${badge}</td></tr>`;
   }).join('');
   return `<div style="margin-bottom:20px"><h3 style="font-size:18px;font-weight:700">\u{1F4B0} To'lovlar</h3></div>
-  <div style="display:flex;gap:12px;margin-bottom:20px"><div style="flex:1;background:rgba(98,209,123,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">JAMI TO'LANGAN</div><div style="font-size:20px;font-weight:800;color:var(--green)">${(totalPaid / 1000000).toFixed(1)}M</div></div><div style="flex:1;background:rgba(231,76,60,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">QARZDORLIK</div><div style="font-size:20px;font-weight:800;color:var(--red)">${(debtTotal / 1000000).toFixed(1)}M</div></div><div style="flex:1;background:rgba(139,92,246,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">TO'LANMAGAN</div><div style="font-size:20px;font-weight:800;color:var(--purple)">${unpaid}</div></div></div>
+  <div class="pflex-3"><div style="flex:1;background:rgba(98,209,123,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">JAMI TO'LANGAN</div><div style="font-size:20px;font-weight:800;color:var(--green)">${(totalPaid / 1000000).toFixed(1)}M</div></div><div style="flex:1;background:rgba(231,76,60,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">QARZDORLIK</div><div style="font-size:20px;font-weight:800;color:var(--red)">${(debtTotal / 1000000).toFixed(1)}M</div></div><div style="flex:1;background:rgba(139,92,246,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">TO'LANMAGAN</div><div style="font-size:20px;font-weight:800;color:var(--purple)">${unpaid}</div></div></div>
   <div class="card"><table class="table"><thead><tr><th>O'quvchi</th><th>Kurs</th><th>Miqdor</th><th>Sana</th><th>Holat</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
@@ -608,7 +730,7 @@ function renderReports() {
   const bars = months.map((m, i) => `<div class="chart-bar" style="height:${(revenue[i] / maxR) * 100}%" data-label="${m}"></div>`).join('');
   const totalRev = revenue.reduce((a, b) => a + b, 0);
   return `<h3 style="font-size:18px;font-weight:700;margin-bottom:20px">\u{1F4C8} Hisobotlar</h3>
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+  <div class="rgrid-4">
     <div style="background:rgba(98,209,123,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">JAMI DAROMAD</div><div style="font-size:22px;font-weight:800;color:var(--green)">${totalRev}.4M</div></div>
     <div style="background:rgba(231,76,60,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">XARAJAT</div><div style="font-size:22px;font-weight:800;color:var(--red)">24.2M</div></div>
     <div style="background:rgba(59,130,246,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">SOF FOYDA</div><div style="font-size:22px;font-weight:800;color:var(--blue)">${totalRev - 24}.2M</div></div>
@@ -686,7 +808,7 @@ function renderHomework() {
 
 
 function renderChildren() {
-  return `<div class="card" style="border-left:3px solid var(--gold)"><div class="card-title">\u{1F393} Farzandim — Muhammad Ali</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px"><div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--green)">94%</div><div style="font-size:11px;color:var(--text2)">Davomat</div></div><div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--blue)">82%</div><div style="font-size:11px;color:var(--text2)">Baholar</div></div><div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--navy)">IELTS</div><div style="font-size:11px;color:var(--text2)">Kurs</div></div><div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--green)">Paid</div><div style="font-size:11px;color:var(--text2)">To'lov</div></div></div></div>`;
+  return `<div class="card" style="border-left:3px solid var(--gold)"><div class="card-title">\u{1F393} Farzandim — Muhammad Ali</div>  <div class="rgrid-4"><div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--green)">94%</div><div style="font-size:11px;color:var(--text2)">Davomat</div></div><div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--blue)">82%</div><div style="font-size:11px;color:var(--text2)">Baholar</div></div><div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--navy)">IELTS</div><div style="font-size:11px;color:var(--text2)">Kurs</div></div><div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--green)">Paid</div><div style="font-size:11px;color:var(--text2)">To'lov</div></div></div></div>`;
 }
 
 // ─── Chart Animation ───
