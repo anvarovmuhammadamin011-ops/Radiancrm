@@ -364,6 +364,11 @@ let studFilter = 'all';
 let studGroup = 'all';
 let selectedGroup = null;
 let attGroup = null;
+let expenses = [
+  {cat:"O'qituvchilarga oylik", am:'12,000,000', dt:'01.08.2026'},
+  {cat:'Bayram tadbiri', am:'2,500,000', dt:'10.08.2026'},
+  {cat:'Ijara', am:'8,000,000', dt:'05.08.2026'}
+];
 
 // ─── Login / Logout ───
 function selectRole(r) {
@@ -485,7 +490,7 @@ function renderPage(r) {
     teacherattendance: renderTeacherAttendance, teacherpayments: renderMonthlyPayments, groupdetail: renderGroupDetail,
     // aliases
     subscriptions: renderAllUsers, analytics: renderReports, debtors: renderPayments, invoices: renderPayments,
-    monthlyincome: renderReports, expenses: renderReports, grades: renderStudents, results: renderResults,
+    monthlyincome: renderReports, expenses: renderExpenses, grades: renderStudents, results: renderResults,
     mypayments: renderMyCourses
   };
   return (P[currentPage] || P.dashboard)();
@@ -665,25 +670,33 @@ function renderExams() {
 
 function renderPayments() {
   const payments = [
-    {n:'Muhammad Ali',co:'IELTS',am:'500,000',st:'paid',dt:'20.08.2026'},
-    {n:'Madina Karimova',co:'Matematika',am:'300,000',st:'debt',dt:'25.08.2026'},
-    {n:'Azizbek Rahimov',co:'Biologiya',am:'400,000',st:'paid',dt:'19.08.2026'},
-    {n:'Sardor Aliyev',co:'IELTS',am:'500,000',st:'paid',dt:'18.08.2026'},
-    {n:'Javohir Karimov',co:'Fizika',am:'0',st:'debt',dt:'15.08.2026'},
-    {n:'Dilshod Raximov',co:'Ingliz tili',am:'400,000',st:'paid',dt:'20.08.2026'},
-    {n:'Nodirbek Sattorov',co:'Kimyo',am:'200,000',st:'partial',dt:'22.08.2026'},
-    {n:'Abdulloh Karimov',co:'Matematika',am:'500,000',st:'paid',dt:'17.08.2026'},
+    {n:'Muhammad Ali',co:'IELTS',total:500000,paid:500000,dt:'20.08.2026'},
+    {n:'Madina Karimova',co:'Matematika',total:500000,paid:300000,dt:'25.08.2026'},
+    {n:'Azizbek Rahimov',co:'Biologiya',total:400000,paid:400000,dt:'19.08.2026'},
+    {n:'Sardor Aliyev',co:'IELTS',total:500000,paid:500000,dt:'18.08.2026'},
+    {n:'Javohir Karimov',co:'Fizika',total:500000,paid:0,dt:'15.08.2026'},
+    {n:'Dilshod Raximov',co:'Ingliz tili',total:400000,paid:400000,dt:'20.08.2026'},
+    {n:'Nodirbek Sattorov',co:'Kimyo',total:500000,paid:200000,dt:'22.08.2026'},
+    {n:'Abdulloh Karimov',co:'Matematika',total:500000,paid:500000,dt:'17.08.2026'},
   ];
-  const totalPaid = payments.filter(p => p.st === 'paid').reduce((a, p) => a + parseInt(p.am.replace(/,/g, '')), 0);
-  const debtTotal = payments.filter(p => p.st === 'debt').reduce((a, p) => a + 500000 - parseInt(p.am.replace(/,/g, '')), 0);
-  const unpaid = payments.filter(p => p.st !== 'paid').length;
+  const money = n => n.toLocaleString('en-US') + ' so\u2019m';
+  const totalAll = payments.reduce((a, p) => a + p.total, 0);
+  const paidAll = payments.reduce((a, p) => a + p.paid, 0);
+  const debtAll = totalAll - paidAll;
+  const debtCount = payments.filter(p => p.total - p.paid > 0).length;
   const rows = payments.map(p => {
-    const badge = p.st === 'paid' ? '<span class="badge green">To\'langan</span>' : p.st === 'debt' ? '<span class="badge red">Qarz</span>' : '<span class="badge gold">Qisman</span>';
-    return `<tr><td><strong>${p.n}</strong></td><td>${p.co}</td><td>${p.am}</td><td>${p.dt}</td><td>${badge}</td></tr>`;
+    const debt = p.total - p.paid;
+    let badge;
+    if (debt <= 0) badge = '<span class="badge green">To\u2019liq to\u2019langan</span>';
+    else if (p.paid > 0) badge = '<span class="badge gold">Qisman to\u2019langan</span>';
+    else badge = '<span class="badge red">To\u2019lanmagan</span>';
+    const paidCell = p.paid > 0 ? money(p.paid) : '\u2014';
+    const debtCell = debt > 0 ? `<span style="color:var(--red);font-weight:700">${money(debt)}</span>` : '\u2014';
+    return `<tr><td><strong>${p.n}</strong></td><td>${p.co}</td><td>${badge}</td><td>${p.dt}</td><td>${paidCell}</td><td>${debtCell}</td></tr>`;
   }).join('');
-  return `<div style="margin-bottom:20px"><h3 style="font-size:16px;font-weight:700">\u{1F4B0} To'lovlar</h3></div>
-  <div class="pflex-3"><div style="flex:1;background:rgba(98,209,123,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">JAMI TO'LANGAN</div><div style="font-size:18px;font-weight:800;color:var(--green)">${(totalPaid / 1000000).toFixed(1)}M</div></div><div style="flex:1;background:rgba(231,76,60,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">QARZDORLIK</div><div style="font-size:18px;font-weight:800;color:var(--red)">${(debtTotal / 1000000).toFixed(1)}M</div></div><div style="flex:1;background:rgba(139,92,246,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">TO'LANMAGAN</div><div style="font-size:18px;font-weight:800;color:var(--purple)">${unpaid}</div></div></div>
-  <div class="card"><table class="table"><thead><tr><th>O'quvchi</th><th>Kurs</th><th>Miqdor</th><th>Sana</th><th>Holat</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  return `<div style="margin-bottom:20px"><h3 style="font-size:16px;font-weight:700">\u{1F4B0} To'lovlar</h3><p style="font-size:13px;color:var(--text2)">Har bir o\u2019quvchi to\u2019lagan miqdor va qarzi</p></div>
+  <div class="pflex-3"><div style="flex:1;background:rgba(98,209,123,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">JAMI TO'LANGAN</div><div style="font-size:18px;font-weight:800;color:var(--green)">${money(paidAll)}</div></div><div style="flex:1;background:rgba(231,76,60,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">QARZDORLIK</div><div style="font-size:18px;font-weight:800;color:var(--red)">${money(debtAll)}</div></div><div style="flex:1;background:rgba(139,92,246,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">QARZDORLAR</div><div style="font-size:18px;font-weight:800;color:var(--purple)">${debtCount}</div></div></div>
+  <div class="card"><table class="table"><thead><tr><th>O'quvchi</th><th>Kurs</th><th>Holat</th><th>Sana</th><th>To'langan</th><th>Qarzi</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
 function renderReports() {
@@ -703,6 +716,31 @@ function renderReports() {
   <div class="card"><div class="card-title">\u{1F4CA} Kurslar bo'yicha</div><table class="table"><thead><tr><th>Kurs</th><th>O'quvchi</th><th>Daromad</th><th>%</th></tr></thead><tbody><tr><td>\u{1F9EE} Matematika</td><td>186</td><td style="font-weight:700">18.6M</td><td><div class="progress" style="width:80px"><div class="progress-fill" style="width:35%"></div></div></td></tr><tr><td>\u{1F393} IELTS</td><td>98</td><td style="font-weight:700">14.2M</td><td><div class="progress" style="width:80px"><div class="progress-fill" style="width:27%"></div></div></td></tr><tr><td>\u{1F1EC}\u{1F1E7} Ingliz tili</td><td>142</td><td style="font-weight:700">12.8M</td><td><div class="progress" style="width:80px"><div class="progress-fill" style="width:24%"></div></div></td></tr><tr><td>\u{269B}\u{FE0F} Fizika</td><td>78</td><td style="font-weight:700">8.4M</td><td><div class="progress" style="width:80px"><div class="progress-fill" style="width:16%"></div></div></td></tr></tbody></table></div></div>
   <div class="card"><div class="card-title">\u{1F4B8} Oylik xarajatlar</div><table class="table"><thead><tr><th>Turi</th><th>Miqdor</th><th>%</th><th>Izoh</th></tr></thead><tbody><tr><td>\u{1F4B0} Oylik ish haqi</td><td style="font-weight:700;color:var(--red)">12,000,000</td><td>49%</td><td>7 ta ustoz</td></tr><tr><td>\u{1F3E2} Ijara</td><td style="font-weight:700;color:var(--red)">8,000,000</td><td>33%</td><td>Oylik ijara</td></tr><tr><td>\u{1F4E2} Reklama</td><td style="font-weight:700;color:var(--red)">3,000,000</td><td>12%</td><td>Instagram + Telegram</td></tr><tr><td>\u{26A1} Kommunal</td><td style="font-weight:700;color:var(--red)">1,700,000</td><td>7%</td><td>Elektr + Internet</td></tr></tbody></table></div>`;
 }
+
+function renderExpenses() {
+  const total = expenses.reduce((a, e) => a + parseInt(e.am.replace(/,/g, '')), 0);
+  const rows = expenses.map((e, i) => `<tr><td><strong>${e.cat}</strong></td><td>${e.am}</td><td>${e.dt}</td><td><button class="logout-btn" style="background:rgba(231,76,60,.12);color:var(--red);border:none;border-radius:8px;padding:5px 9px;cursor:pointer" onclick="removeExpense(${i})">\u{1F5D1}</button></td></tr>`).join('');
+  return `<div style="margin-bottom:20px"><h3 style="font-size:16px;font-weight:700">\u{1F4B8} Chiqimlar (Xarajatlar)</h3><p style="font-size:13px;color:var(--text2)">O\u2019qituvchilar maoshi, bayramlar, ijara va boshqa xarajatlar</p></div>
+  <div class="pflex-3"><div style="flex:1;background:rgba(231,76,60,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">JAMI CHIQIM</div><div style="font-size:18px;font-weight:800;color:var(--red)">${(total / 1000000).toFixed(1)}M</div></div></div>
+  <div class="card" style="margin-bottom:16px"><div class="card-title">\u{1F4DD} Yangi chiqim qo'shish</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+      <div class="form-group" style="margin:0"><label>Kategoriya</label><select id="expCat" class="form-input"><option>O'qituvchi maoshi</option><option>Bayram tadbiri</option><option>Ijara</option><option>Reklama</option><option>Kommunal</option><option>Boshqa</option></select></div>
+      <div class="form-group" style="margin:0"><label>Miqdor (so'm)</label><input id="expAm" class="form-input" placeholder="masalan 1,500,000" /></div>
+      <div class="form-group" style="margin:0"><label>Sana</label><input id="expDate" class="form-input" value="20.08.2026" /></div>
+      <button style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-weight:600;cursor:pointer" onclick="addExpense()">+ Qo'shish</button>
+    </div>
+  </div>
+  <div class="card"><div class="card-title">\u{1F4CB} Chiqimlar ro'yxati</div><table class="table"><thead><tr><th>Kategoriya</th><th>Miqdor</th><th>Sana</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function addExpense() {
+  const cat = document.getElementById('expCat').value;
+  const am = document.getElementById('expAm').value.trim();
+  const dt = document.getElementById('expDate').value.trim() || '20.08.2026';
+  if (!am) return;
+  expenses.push({cat: cat, am: am, dt: dt});
+  renderPageContent();
+}
+function removeExpense(i) { expenses.splice(i, 1); renderPageContent(); }
 
 function renderSettings() {
   return `<h3 style="font-size:16px;font-weight:700;margin-bottom:20px">\u{2699}\u{FE0F} Academy sozlamalari</h3><div class="card"><div class="card-title">\u{1F3E2} Radian O'quv Markazi</div><div style="font-size:13px"><div class="form-group"><label>Nom</label><input class="form-input" value="Radian O'quv Markazi" /></div><div class="form-group"><label>Manzil</label><input class="form-input" value="Baliqchi tumani, Chinobod shaharchasi" /></div><div class="form-group"><label>Telefon</label><input class="form-input" value="+998 91 064 11 44" /></div><div class="form-group"><label>Email</label><input class="form-input" value="info@radian.uz" /></div><button style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:600;cursor:pointer">Saqlash</button></div></div>`;
