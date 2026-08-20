@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radian — O'quv Markazi CRM</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#202B4D;--green:#62D17B;--gold:#F3C94B;
+  --bg:#F7F8FA;--card:#FFFFFF;--border:#E8EBF0;
+  --text:#202B4D;--text2:#697386;--muted:#9AA3B2;
+  --red:#E74C3C;--blue:#3B82F6;--purple:#8B5CF6;
+  --sidebar-w:240px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow:hidden;font-size:14px}
+
+/* Login */
+.login-page{display:flex;height:100vh}
+.login-left{flex:1;background:linear-gradient(135deg,#1a2540,var(--navy),#2a3a5c);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;position:relative}
+.login-left::before{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(98,209,123,.08),transparent 70%);top:-100px;right:-100px}
+.login-brand{text-align:center;position:relative;z-index:1}
+.login-brand .logo-wrap{width:120px;height:120px;margin:0 auto 24px;display:flex;align-items:center;justify-content:center}
+.login-brand .logo-wrap img{width:100%;height:100%;object-fit:contain}
+.login-brand h1{font-size:36px;font-weight:800;color:#fff;letter-spacing:3px}
+.login-brand .subtitle{font-size:13px;color:rgba(255,255,255,.5);letter-spacing:4px;text-transform:uppercase;margin-top:4px}
+.login-brand .slogan{font-size:15px;color:var(--green);font-weight:600;margin-top:12px;letter-spacing:1px}
+.login-features{margin-top:48px;width:100%;max-width:360px}
+.login-feature{display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;margin-bottom:8px;font-size:13px;color:rgba(255,255,255,.8)}
+.login-feature .icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.login-feature .icon.g{background:rgba(98,209,123,.15)}
+.login-feature .icon.b{background:rgba(59,130,246,.15)}
+.login-feature .icon.y{background:rgba(243,201,75,.15)}
+.login-right{width:480px;background:#fff;display:flex;flex-direction:column;justify-content:center;padding:48px 56px;border-left:1px solid var(--border)}
+.login-right h2{font-size:22px;font-weight:700;margin-bottom:4px}
+.login-right .sub{font-size:13px;color:var(--text2);margin-bottom:28px}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px}
+.role-card{background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:14px 10px;cursor:pointer;transition:all .15s;text-align:center}
+.role-card:hover{border-color:var(--green);background:rgba(98,209,123,.04)}
+.role-card.active{border-color:var(--green);background:rgba(98,209,123,.08);box-shadow:0 0 0 1px var(--green)}
+.role-card .ri{font-size:24px;margin-bottom:4px}
+.role-card .rn{font-size:12px;font-weight:600;color:var(--text)}
+.role-card .rd{font-size:10px;color:var(--muted);margin-top:2px}
+.role-card.full{grid-column:span 2;background:linear-gradient(135deg,rgba(243,201,75,.06),rgba(98,209,123,.04));border-color:rgba(243,201,75,.3)}
+.role-card.full .rn{color:var(--gold)}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.form-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-size:14px;outline:none;transition:border .15s}
+.form-input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(98,209,123,.12)}
+.login-btn{width:100%;padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;background:var(--green);color:#fff;transition:all .15s;margin-top:4px}
+.login-btn:hover{background:#52c16b;transform:translateY(-1px);box-shadow:0 6px 16px rgba(98,209,123,.3)}
+.login-btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;transform:none;box-shadow:none}
+.demo-section{margin-top:20px;text-align:center}
+.demo-section p{font-size:11px;color:var(--muted);margin-bottom:8px}
+.demo-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.demo-chip{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:10px;color:var(--text2);cursor:pointer;transition:all .15s}
+.demo-chip:hover{border-color:var(--green);color:var(--green)}
+.demo-chip.gold{border-color:rgba(243,201,75,.4);color:#c5a22a}
+
+/* Dashboard */
+.dashboard{display:none;height:100vh;overflow:hidden}
+.dashboard.visible{display:flex}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);background:var(--navy);z-index:10;display:flex;flex-direction:column}
+.sidebar-brand{padding:20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.sidebar-brand img{width:32px;height:32px;object-fit:contain}
+.sidebar-brand .sb-text h2{font-size:15px;font-weight:700;color:#fff;letter-spacing:1px}
+.sidebar-brand .sb-text span{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:1.5px}
+.sidebar-nav{flex:1;overflow-y:auto;padding:12px 0}
+.nav-section{padding:0 12px;margin-bottom:4px}
+.nav-section-title{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.3);padding:8px 12px 4px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.6);transition:all .12s}
+.nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.9)}
+.nav-item.active{background:var(--green);color:#fff;font-weight:600}
+.nav-item .emoji{font-size:15px;width:20px;text-align:center}
+.nav-item .badge{margin-left:auto;background:rgba(255,255,255,.12);color:rgba(255,255,255,.7);font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600}
+.nav-item.active .badge{background:rgba(255,255,255,.25);color:#fff}
+.sidebar-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.sidebar-footer .avatar{width:32px;height:32px;border-radius:8px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.sidebar-footer .sf-info{flex:1}
+.sidebar-footer .sf-name{font-size:12px;font-weight:600;color:#fff}
+.sidebar-footer .sf-role{font-size:10px;color:rgba(255,255,255,.4)}
+.logout-btn{background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:14px;padding:4px}
+.logout-btn:hover{color:var(--red)}
+.main{margin-left:var(--sidebar-w);flex:1;overflow-y:auto;height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 28px;border-bottom:1px solid var(--border);background:#fff;position:sticky;top:0;z-index:5}
+.topbar h2{font-size:18px;font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.search-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;width:220px;outline:none}
+.search-box:focus{border-color:var(--green)}
+.user-pill{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:5px 12px 5px 5px}
+.user-pill .avatar{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.user-pill .name{font-size:12px;font-weight:600}
+.user-pill .role{font-size:10px;color:var(--muted)}
+.content{padding:24px 28px}
+.welcome{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between}
+.welcome .w-left h3{font-size:16px;font-weight:700}
+.welcome .w-left p{font-size:13px;color:var(--text2);margin-top:2px}
+.welcome .w-badge{background:var(--bg);border:1px solid var(--border);padding:6px 14px;border-radius:8px;font-size:12px;font-weight:500;color:var(--text2)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 20px;transition:box-shadow .15s}
+.stat-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.stat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.stat-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.stat-icon.navy{background:rgba(32,43,77,.08)}
+.stat-icon.green{background:rgba(98,209,123,.12)}
+.stat-icon.gold{background:rgba(243,201,75,.12)}
+.stat-icon.red{background:rgba(231,76,60,.1)}
+.stat-icon.blue{background:rgba(59,130,246,.1)}
+.stat-icon.purple{background:rgba(139,92,246,.1)}
+.stat-change{font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px}
+.stat-change.up{color:var(--green);background:rgba(98,209,123,.1)}
+.stat-value{font-size:26px;font-weight:800;line-height:1}
+.stat-label{font-size:12px;color:var(--text2);margin-top:4px}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px}
+.card-title{font-size:14px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.table{width:100%;border-collapse:collapse}
+.table th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--border);font-weight:600}
+.table td{padding:10px;font-size:13px;border-bottom:1px solid var(--border)}
+.table tr:last-child td{border-bottom:none}
+.table tr:hover td{background:rgba(98,209,123,.02)}
+.badge{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;display:inline-block}
+.badge.green{background:rgba(98,209,123,.12);color:#2da54e}
+.badge.gold{background:rgba(243,201,75,.15);color:#b89a1e}
+.badge.red{background:rgba(231,76,60,.1);color:var(--red)}
+.badge.navy{background:rgba(32,43,77,.08);color:var(--navy)}
+.badge.blue{background:rgba(59,130,246,.1);color:var(--blue)}
+.badge.purple{background:rgba(139,92,246,.1);color:var(--purple)}
+.chart-bars{display:flex;align-items:flex-end;gap:6px;height:160px;padding:0 0 24px}
+.chart-bar{flex:1;border-radius:4px 4px 0 0;transition:height .6s ease;position:relative;background:var(--green);opacity:.7}
+.chart-bar:nth-child(even){opacity:.45}
+.chart-bar::after{content:attr(data-label);position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted);white-space:nowrap}
+.progress{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:var(--green)}
+.course-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.course-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px;transition:all .15s;cursor:pointer}
+.course-card:hover{border-color:var(--green);box-shadow:0 2px 8px rgba(98,209,123,.1)}
+.course-card .cc-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.course-card .cc-emoji{font-size:22px}
+.course-card .cc-name{font-size:13px;font-weight:700}
+.course-card .cc-stats{font-size:11px;color:var(--text2)}
+.course-card .cc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.course-card .cc-tag{font-size:9px;background:rgba(32,43,77,.06);color:var(--text2);padding:2px 6px;border-radius:4px}
+.hidden{display:none !important}
+@media(max-width:1200px){.stats-grid{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.stats-grid{grid-template-columns:1fr 1fr}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-page" id="loginPage">
+  <div class="login-left">
+    <div class="login-brand">
+      <div class="logo-wrap"><img src="radian-logo.png" alt="Radian" /></div>
+      <h1>RADIAN</h1>
+      <div class="subtitle">O'QUV MARKAZI</div>
+      <div class="slogan">KELAJAK BIZ BILAN</div>
+    </div>
+    <div class="login-features">
+      <div class="login-feature"><div class="icon g">📍</div><span>Baliqchi tumani, Chinobod shaharchasi</span></div>
+      <div class="login-feature"><div class="icon b">📞</div><span>+998 91 064 11 44</span></div>
+      <div class="login-feature"><div class="icon y">📚</div><span>14 ta fan: Matematika, IELTS, Fizika...</span></div>
+      <div class="login-feature"><div class="icon g">👨‍🏫</div><span>24+ ustoz va 1,200+ o'quvchi</span></div>
+    </div>
+  </div>
+  <div class="login-right">
+    <h2>Xush kelibsiz 👋</h2>
+    <div class="sub">Davom etish uchun turingizni tanlang</div>
+    <div class="role-grid" id="roleGrid">
+      <div class="role-card full" data-role="super_admin" onclick="selectRole('super_admin')">
+        <div class="ri">👑</div><div class="rn" style="color:var(--gold)">Super Admin</div><div class="rd">Butun platforma</div>
+      </div>
+      <div class="role-card" data-role="admin" onclick="selectRole('admin')">
+        <div class="ri">🏢</div><div class="rn">Admin</div><div class="rd">Markaz direktori</div>
+      </div>
+      <div class="role-card" data-role="accountant" onclick="selectRole('accountant')">
+        <div class="ri">🧮</div><div class="rn">Buxgalter</div><div class="rd">Moliya</div>
+      </div>
+      <div class="role-card" data-role="teacher" onclick="selectRole('teacher')">
+        <div class="ri">🧑‍🏫</div><div class="rn">O'qituvchi</div><div class="rd">Dars / Ta'lim</div>
+      </div>
+      <div class="role-card" data-role="student" onclick="selectRole('student')">
+        <div class="ri">👨‍🎓</div><div class="rn">O'quvchi</div><div class="rd">O'z o'qishi</div>
+      </div>
+      <div class="role-card" data-role="parent" onclick="selectRole('parent')">
+        <div class="ri">👨‍👩‍👦</div><div class="rn">Ota-ona</div><div class="rd">Farzand nazorati</div>
+      </div>
+    </div>
+    <form onsubmit="handleLogin(event)">
+      <div class="form-group"><label>Email</label><input class="form-input" type="email" id="emailInput" placeholder="email@radian.uz" /></div>
+      <div class="form-group"><label>Parol</label><input class="form-input" type="password" id="passwordInput" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022" /></div>
+      <button class="login-btn" type="submit" id="loginBtn" disabled>Kirish →</button>
+    </form>
+    <div class="demo-section">
+      <p>Tezkor kirish:</p>
+      <div class="demo-chips">
+        <div class="demo-chip gold" onclick="quickLogin('super_admin')">👑 Super Admin</div>
+        <div class="demo-chip" onclick="quickLogin('admin')">🏢 Admin</div>
+        <div class="demo-chip" onclick="quickLogin('teacher')">🧑‍🏫 O'qituvchi</div>
+        <div class="demo-chip" onclick="quickLogin('student')">👨‍🎓 O'quvchi</div>
+        <div class="demo-chip" onclick="quickLogin('parent')">👨‍👩‍👦 Ota-ona</div>
+        <div class="demo-chip" onclick="quickLogin('accountant')">🧮 Buxgalter</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main" id="mainContent"></div>
+</div>
+
+<script>
+// ─── Role Configurations ───
+const ROLES = {
+  super_admin: {
+    name: 'Super Admin', tag: 'Platform Owner', emoji: '\u{1F451}',
+    color: 'var(--gold)', email: 'super@radian.uz',
+    nav: [
+      {s:'Platform', i:[{e:'\u{1F4CA}',l:'Dashboard',p:'dashboard'},{e:'\u{1F3E2}',l:'Academies',b:'128',p:'allusers'},{e:'\u{1F465}',l:'Barcha foydalanuvchilar',b:'24,582',p:'allusers'}]},
+      {s:'SaaS', i:[{e:'\u{1F4B3}',l:'Subscriptions',p:'subscriptions'},{e:'\u{1F4C8}',l:'Analytics',p:'analytics'}]},
+      {s:'Xavfsizlik', i:[{e:'\u{1F4DD}',l:'Audit Logs',p:'auditlogs'},{e:'\u{2699}\u{FE0F}',l:'Settings',p:'settings'}]}
+    ],
+    stats: [
+      {e:'\u{1F3E2}',c:'navy',v:'128',l:'Academies'},{e:'\u{1F465}',c:'navy',v:'24,582',l:'Users'},
+      {e:'\u{1F4B0}',c:'green',v:'$24,500',l:'Revenue'},{e:'\u{1F4C8}',c:'blue',v:'+18%',l:'Growth'},
+      {e:'\u{1F7E2}',c:'green',v:'120',l:'Active'},{e:'\u{1F534}',c:'red',v:'8',l:'Suspended'}
+    ]
+  },
+  admin: {
+    name: 'Radian Admin', tag: 'Radian O\'quv Markazi', emoji: '\u{1F3E2}',
+    color: 'var(--green)', email: 'admin@radian.uz',
+    nav: [
+      {s:'Asosiy', i:[{e:'\u{1F4CA}',l:'Dashboard',p:'dashboard'}]},
+      {s:'Boshqaruv', i:[{e:'\u{1F39E}\u{FE0F}',l:"O'quvchilar",b:'1,248',p:'students'},{e:'\u{1F9D1}\u{200D}\u{1F3EB}',l:"O'qituvchilar",b:'24',p:'teachers'},{e:'\u{1F465}',l:'Guruhlar',b:'48',p:'groups'},{e:'\u{1F4DA}',l:'Kurslar',p:'courses'}]},
+      {s:"Ta'lim", i:[{e:'\u{1F4C5}',l:'Jadval',p:'schedule'},{e:'\u{2705}',l:'Davomat',b:'93%',p:'attendance'},{e:'\u{1F4DD}',l:'Imtihonlar',p:'exams'}]},
+      {s:'Moliya', i:[{e:'\u{1F4B0}',l:"To'lovlar",p:'payments'},{e:'\u{1F4C8}',l:'Hisobotlar',p:'reports'}]},
+      {s:'Tizim', i:[{e:'\u{2699}\u{FE0F}',l:'Sozlamalar',p:'settings'},{e:'\u{1F4DD}',l:'Audit Logs',p:'auditlogs'}]}
+    ],
+    stats: [
+      {e:'\u{1F39E}\u{FE0F}',c:'navy',v:'1,248',l:"O'quvchilar",ch:'+12.5%',d:'up'},
+      {e:'\u{1F9D1}\u{200D}\u{1F3EB}',c:'green',v:'24',l:"Ustozlar"},
+      {e:'\u{1F465}',c:'blue',v:'48',l:'Guruhlar'},
+      {e:'\u{1F4B0}',c:'gold',v:'4.8M',l:"Bugungi tushum",ch:'+8%',d:'up'},
+      {e:'\u{26A0}\u{FE0F}',c:'red',v:'12.4M',l:'Qarzdorlik'},
+      {e:'\u{2705}',c:'green',v:'93%',l:"Davomat",ch:'+2%',d:'up'},
+      {e:'\u{1F3AF}',c:'purple',v:'17',l:'Yangi leadlar'},
+      {e:'\u{1F4DA}',c:'navy',v:'14',l:'Fanlar'}
+    ]
+  },
+  teacher: {
+    name: 'Azizbek Teacher', tag: 'IELTS Teacher', emoji: '\u{1F9D1}\u{200D}\u{1F3EB}',
+    color: 'var(--green)', email: 'azizbek@radian.uz',
+    nav: [
+      {s:'Asosiy', i:[{e:'\u{1F4CA}',l:'Dashboard',p:'dashboard'}]},
+      {s:'Mening ishim', i:[{e:'\u{1F465}',l:"Guruhlarim",p:'mygroups'},{e:'\u{1F4C5}',l:'Darslarim',p:'mylessons'},{e:'\u{2705}',l:'Davomat',p:'attendance'},{e:'\u{1F4DD}',l:'Baholar',p:'grades'},{e:'\u{1F4DA}',l:'Homework',p:'homework'}]}
+    ],
+    stats: [
+      {e:'\u{1F465}',c:'green',v:'3',l:"Guruhlarim"},
+      {e:'\u{1F39E}\u{FE0F}',c:'navy',v:'54',l:"O'quvchilarim"},
+      {e:'\u{1F4C5}',c:'blue',v:'4',l:"Bugungi darslar"},
+      {e:'\u{2705}',c:'green',v:'93%',l:'Davomat'}
+    ]
+  },
+  student: {
+    name: 'Muhammad Ali', tag: 'IELTS Student', emoji: '\u{1F393}',
+    color: 'var(--blue)', email: 'muhammad@radian.uz',
+    nav: [
+      {s:'Asosiy', i:[{e:'\u{1F4CA}',l:'Dashboard',p:'dashboard'}]},
+      {s:"Ta'lim", i:[{e:'\u{1F4DA}',l:"Mening kurslarim",p:'mycourses'},{e:'\u{1F4C5}',l:'Jadvalim',p:'myschedule'},{e:'\u{2705}',l:'Davomatim',p:'myattendance'},{e:'\u{1F4DD}',l:'Homework',p:'homework'},{e:'\u{1F4CA}',l:'Natijalarim',p:'results'}]},
+      {s:'Moliya', i:[{e:'\u{1F4B0}',l:"To'lovlarim",p:'mypayments'}]}
+    ],
+    stats: [
+      {e:'\u{2705}',c:'green',v:'94%',l:'Davomatim'},
+      {e:'\u{1F4CA}',c:'blue',v:'82%',l:"O'rtacha baho"},
+      {e:'\u{1F4DA}',c:'navy',v:'IELTS',l:'Kursim'},
+      {e:'\u{1F4B0}',c:'green',v:"To'langan",l:"To'lov"}
+    ]
+  },
+  parent: {
+    name: 'Anvar Aliyev', tag: 'Ota-ona', emoji: '\u{1F468}\u{200D}\u{1F469}\u{200D}\u{1F466}',
+    color: 'var(--gold)', email: 'anvar@radian.uz',
+    nav: [
+      {s:'Asosiy', i:[{e:'\u{1F4CA}',l:'Dashboard',p:'dashboard'},{e:'\u{1F39E}\u{FE0F}',l:'Farzandlarim',p:'children'}]},
+      {s:"Ma'lumot", i:[{e:'\u{2705}',l:'Davomat',p:'myattendance'},{e:'\u{1F4CA}',l:'Natijalar',p:'results'},{e:'\u{1F4C5}',l:'Jadval',p:'myschedule'}]},
+      {s:'Moliya', i:[{e:'\u{1F4B0}',l:"To'lovlar",p:'mypayments'}]}
+    ],
+    stats: [
+      {e:'\u{1F39E}\u{FE0F}',c:'navy',v:'Muhammad',l:'Farzandim'},
+      {e:'\u{2705}',c:'green',v:'94%',l:'Davomat'},
+      {e:'\u{1F4CA}',c:'blue',v:'82%',l:'Baholar'},
+      {e:'\u{1F4B0}',c:'green',v:"To'langan",l:"To'lov"}
+    ]
+  },
+  accountant: {
+    name: 'Nodira Buxgalter', tag: 'Accountant', emoji: '\u{1F9EE}',
+    color: 'var(--gold)', email: 'nodira@radian.uz',
+    nav: [
+      {s:'Moliya', i:[{e:'\u{1F4CA}',l:'Dashboard',p:'dashboard'},{e:'\u{1F4B0}',l:"To'lovlar",p:'payments'},{e:'\u{26A0}\u{FE0F}',l:'Qarzdorlik',b:'12.4M',p:'debtors'},{e:'\u{1F4C4}',l:'Hisob-fakturalar',p:'invoices'}]},
+      {s:'Hisobotlar', i:[{e:'\u{1F4C8}',l:'Oylik daromad',p:'monthlyincome'},{e:'\u{1F4B8}',l:'Xarajatlar',p:'expenses'}]}
+    ],
+    stats: [
+      {e:'\u{1F4B0}',c:'green',v:'4.85M',l:"Bugungi tushum"},
+      {e:'\u{1F4C8}',c:'navy',v:'85.4M',l:'Bu oy'},
+      {e:'\u{26A0}\u{FE0F}',c:'red',v:'12.4M',l:'Qarzdorlik'},
+      {e:'\u{1F4B8}',c:'red',v:'8.2M',l:'Xarajatlar'},
+      {e:'\u{1F4B5}',c:'green',v:'77.2M',l:'Sof foyda'},
+      {e:'\u{1F4C4}',c:'blue',v:'37',l:"To'lanmagan"}
+    ]
+  }
+};
+
+// ─── State ───
+let selectedRole = null;
+let currentPage = 'dashboard';
+let studFilter = 'all';
+let studGroup = 'all';
+
+// ─── Login / Logout ───
+function selectRole(r) {
+  selectedRole = r;
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+  document.querySelector(`[data-role="${r}"]`).classList.add('active');
+  document.getElementById('emailInput').value = ROLES[r].email;
+  document.getElementById('passwordInput').value = 'password123';
+  document.getElementById('loginBtn').disabled = false;
+}
+function quickLogin(r) { selectedRole = r; showDashboard(r); }
+function handleLogin(e) { e.preventDefault(); if (!selectedRole) return; showDashboard(selectedRole); }
+function showDashboard(r) {
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('dashboard').classList.add('visible');
+  currentPage = 'dashboard';
+  renderSidebar();
+  renderPageContent();
+}
+function logout() {
+  document.getElementById('dashboard').classList.remove('visible');
+  document.getElementById('loginPage').classList.remove('hidden');
+  selectedRole = null;
+  currentPage = 'dashboard';
+  studFilter = 'all';
+  studGroup = 'all';
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('emailInput').value = '';
+  document.getElementById('passwordInput').value = '';
+  document.getElementById('loginBtn').disabled = true;
+}
+
+// ─── Sidebar ───
+function renderSidebar() {
+  const r = ROLES[selectedRole];
+  if (!r) return;
+  let navIdx = 0;
+  let h = `<div class="sidebar-brand"><img src="radian-logo.png" alt="R" width="32" height="32"/><div class="sb-text"><h2>RADIAN</h2><span>KELAJAK BIZ BILAN</span></div></div><div class="sidebar-nav">`;
+  r.nav.forEach(sec => {
+    h += `<div class="nav-section"><div class="nav-section-title">${sec.s}</div>`;
+    sec.i.forEach(item => {
+      const pg = item.p || 'dashboard';
+      h += `<div class="nav-item${navIdx++ === 0 ? ' active' : ''}" data-page="${pg}" onclick="navClick(this)"><span class="emoji">${item.e}</span>${item.l}${item.b ? `<span class="badge">${item.b}</span>` : ''}</div>`;
+    });
+    h += '</div>';
+  });
+  const initials = r.name.split(' ').map(w => w[0]).join('').slice(0, 2);
+  h += `</div><div class="sidebar-footer"><div class="avatar" style="background:${r.color}">${initials}</div><div class="sf-info"><div class="sf-name">${r.name}</div><div class="sf-role">${r.tag}</div></div><button class="logout-btn" onclick="logout()">\u{1F6AA}</button></div>`;
+  document.getElementById('sidebar').innerHTML = h;
+}
+
+function navClick(el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  currentPage = el.dataset.page || 'dashboard';
+  renderPageContent();
+}
+
+// ─── Page Rendering ───
+function renderPageContent() {
+  const r = ROLES[selectedRole];
+  if (!r) return;
+  const initials = r.name.split(' ').map(w => w[0]).join('').slice(0, 2);
+  const today = new Date();
+  const dayNames = ['Yak','Dush','Sesh','Chor','Pay','Jum','Shan'];
+  const dayOfWeek = today.getDay();
+  const dayStr = dayNames[dayOfWeek === 0 ? 6 : dayOfWeek - 1];
+  const dateStr = `${dayOfWeek === 0 ? 6 : dayOfWeek - 1 < 0 ? 0 : dayOfWeek === 0 ? 6 : dayOfWeek - 1}.${String(today.getMonth() + 1).padStart(2, '0')}.${today.getFullYear()}`;
+  const h = `<div class="topbar"><div><h2>${r.emoji} ${r.tag}</h2></div><div class="topbar-right"><input class="search-box" placeholder="\u{1F50D} Qidirish..."/><div class="user-pill"><div class="avatar" style="background:${r.color};font-size:10px">${initials}</div><div><div class="name">${r.name}</div><div class="role">${r.tag}</div></div></div></div></div><div class="content">${renderPage(r)}</div>`;
+  document.getElementById('mainContent').innerHTML = h;
+  if (document.getElementById('revenueChart')) animateChart();
+}
+
+function renderPage(r) {
+  const P = {
+    dashboard: () => renderDashboard(r), students: renderStudents, teachers: renderTeachers,
+    courses: renderCourses, groups: renderGroups, schedule: renderSchedule, attendance: renderAttendance,
+    exams: renderExams, payments: renderPayments, reports: renderReports, settings: renderSettings,
+    auditlogs: renderAuditLogs, allusers: renderAllUsers, mygroups: renderMyGroups, mylessons: renderMyGroups,
+    mycourses: renderMyCourses, myschedule: renderMySchedule, myattendance: renderMyAttendance,
+    homework: renderHomework, children: renderChildren,
+    // aliases
+    subscriptions: renderAllUsers, analytics: renderReports, debtors: renderPayments, invoices: renderPayments,
+    monthlyincome: renderReports, expenses: renderReports, grades: renderStudents, results: renderMyAttendance,
+    mypayments: renderMyCourses
+  };
+  return (P[currentPage] || P.dashboard)();
+}
+
+// ─── Dashboard Pages ───
+function renderDashboard(r) {
+  const s = r.stats || [];
+  const statsHtml = s.map(st => `<div class="stat-card"><div class="stat-top"><div class="stat-icon ${st.c}">${st.e}</div>${st.ch ? `<span class="stat-change ${st.d || 'up'}">${st.ch}</span>` : ''}</div><div class="stat-value">${st.v}</div><div class="stat-label">${st.l}</div></div>`).join('');
+  const months = ['Yan','Fev','Mar','Apr','May','Iyun','Iyul','Avg','Sen','Okt','Noy','Dek'];
+  const barData = [65,72,58,85,92,78,68,88,95,82,76,90];
+  const maxBar = Math.max(...barData);
+  const bars = months.map((m, i) => `<div class="chart-bar" style="height:${(barData[i] / maxBar) * 100}%" data-label="${m}"></div>`).join('');
+  return `<div class="welcome"><div class="w-left"><h3>${r.emoji} Xush kelibsiz, ${r.name}!</h3><p>Radian O'quv Markazi</p></div><div class="w-right"><span class="w-badge">\u{1F514} 5</span></div></div>
+  <div class="stats-grid">${statsHtml}</div>
+  <div class="two-col"><div class="card"><div class="card-title">\u{1F4C8} Oylik daromad</div><div class="chart-bars" id="revenueChart">${bars}</div></div>
+  <div class="card"><div class="card-title">\u{1F4CA} Statistika</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center"><div style="font-size:18px;font-weight:800;color:var(--green)">+142</div><div style="font-size:11px;color:var(--text2)">Bu oy qo'shilgan</div></div><div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center"><div style="font-size:18px;font-weight:800;color:var(--navy)">+1,103</div><div style="font-size:11px;color:var(--text2)">Jami (yil)</div></div></div></div></div>
+  <div class="card" style="margin-bottom:24px"><div class="card-title">\u{26A0}\u{FE0F} Qarzdorlar</div><table class="table"><thead><tr><th>O'quvchi</th><th>Guruh</th><th>Qarz</th><th>Muddat</th><th>Holat</th></tr></thead><tbody><tr><td><strong>Madina Karimova</strong></td><td>MAT-02</td><td style="color:var(--red);font-weight:700">200,000 so'm</td><td>25.08.2026</td><td><span class="badge gold">Kutilmoqda</span></td></tr><tr><td><strong>Javohir Karimov</strong></td><td>PHY-01</td><td style="color:var(--red);font-weight:700">350,000 so'm</td><td>15.08.2026</td><td><span class="badge red">Muddati o'tgan</span></td></tr><tr><td><strong>Azizbek</strong></td><td>BIO-01</td><td style="color:var(--red);font-weight:700">500,000 so'm</td><td>01.08.2026</td><td><span class="badge red">Muddati o'tgan</span></td></tr><tr><td><strong>Nodirbek Sattorov</strong></td><td>CHEM-01</td><td style="color:var(--red);font-weight:700">200,000 so'm</td><td>22.08.2026</td><td><span class="badge gold">Qisman to'langan</span></td></tr></tbody></table></div>`;
+}
+
+function renderStudents() {
+  const DATA = [
+    {n:'Muhammad Ali',co:'IELTS',gr:'IELTS-01',at:'94%',st:'paid',p:'Sardor',login:'muhammad@radian.uz',pwd:'123456'},
+    {n:'Madina Karimova',co:'Matematika',gr:'MAT-02',at:'88%',st:'debt',p:'Abdulloh',login:'madina@radian.uz',pwd:'123456'},
+    {n:'Azizbek Rahimov',co:'Biologiya',gr:'BIO-01',at:'97%',st:'paid',p:'Javohir',login:'azizbek@radian.uz',pwd:'123456'},
+    {n:'Sardor Aliyev',co:'IELTS',gr:'IELTS-01',at:'92%',st:'paid',p:'Sardor',login:'sardor@radian.uz',pwd:'123456'},
+    {n:'Javohir Karimov',co:'Fizika',gr:'PHY-01',at:'78%',st:'debt',p:'Dilshod',login:'javohir@radian.uz',pwd:'123456'},
+    {n:'Dilshod Raximov',co:'Ingliz tili',gr:'ENG-05',at:'91%',st:'paid',p:'Madina',login:'dilshod@radian.uz',pwd:'123456'},
+    {n:'Nodirbek Sattorov',co:'Kimyo',gr:'CHEM-01',at:'85%',st:'partial',p:'Aziza',login:'nodirbek@radian.uz',pwd:'123456'},
+    {n:'Abdulloh Karimov',co:'Matematika',gr:'MAT-01',at:'95%',st:'paid',p:'Abdulloh',login:'abdulloh@radian.uz',pwd:'123456'},
+    {n:'Anvar Aliyev',co:'Tarix',gr:'HIS-01',at:'90%',st:'paid',p:'Nodir',login:'anvar@radian.uz',pwd:'123456'},
+    {n:'Malika Toshmatova',co:'Rus tili',gr:'RUS-01',at:'82%',st:'paid',p:'Dilnoza',login:'malika@radian.uz',pwd:'123456'},
+  ];
+  const allGroups = ['all', ...new Set(DATA.map(s => s.gr))];
+  let filtered = DATA;
+  if (studFilter === 'active') filtered = filtered.filter(s => s.st === 'paid');
+  else if (studFilter === 'debt') filtered = filtered.filter(s => s.st === 'debt' || s.st === 'partial');
+  if (studGroup !== 'all') filtered = filtered.filter(s => s.gr === studGroup);
+  const activeCount = DATA.filter(s => s.st === 'paid').length;
+  const debtCount = DATA.filter(s => s.st === 'debt' || s.st === 'partial').length;
+  const optHtml = allGroups.map(g => `<option value="${g}" ${g === studGroup ? 'selected' : ''}>${g === 'all' ? '\u{1F4D8} Barcha guruhlar' : g}</option>`).join('');
+  const rowHtml = filtered.map(s => {
+    const atColor = parseInt(s.at) >= 90 ? 'var(--green)' : parseInt(s.at) >= 80 ? 'var(--gold)' : 'var(--red)';
+    const payBadge = s.st === 'paid' ? '<span class="badge green">To\'langan</span>' : s.st === 'debt' ? '<span class="badge red">Qarz</span>' : '<span class="badge gold">Qisman</span>';
+    return `<tr class="student-row"><td><strong>${s.n}</strong></td><td style="font-size:11px;color:var(--text2)">${s.login}</td><td style="font-size:11px;color:var(--text2)">${s.pwd}</td><td>${s.co}</td><td><span class="badge navy">${s.gr}</span></td><td>${s.p}</td><td style="color:${atColor}">${s.at}</td><td>${payBadge}</td></tr>`;
+  }).join('');
+  return `<div style="margin-bottom:20px"><h3 style="font-size:18px;font-weight:700">\u{1F393} O'quvchilar</h3><p style="font-size:13px;color:var(--text2)">${filtered.length} / ${DATA.length} o'quvchi</p></div>
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center"><input class="search-box" style="flex:1;min-width:200px" placeholder="\u{1F50D} O'quvchi qidirish..." oninput="filterSearch(this.value)"/>
+  <select style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--text);cursor:pointer" onchange="filterByGroup(this.value)">${optHtml}</select>
+  <span class="badge ${studFilter === 'all' ? 'green' : 'navy'}" style="cursor:pointer;padding:8px 14px;font-size:12px" onclick="filterStudents('all')">Hammasi (${DATA.length})</span>
+  <span class="badge ${studFilter === 'active' ? 'green' : 'navy'}" style="cursor:pointer;padding:8px 14px;font-size:12px" onclick="filterStudents('active')">\u{1F7E2} Faol (${activeCount})</span>
+  <span class="badge ${studFilter === 'debt' ? 'red' : 'navy'}" style="cursor:pointer;padding:8px 14px;font-size:12px" onclick="filterStudents('debt')">\u{1F534} Qarzdor (${debtCount})</span>
+  </div>
+  <div class="card"><table class="table"><thead><tr><th>O'quvchi</th><th>Login</th><th>Parol</th><th>Kurs</th><th>Guruh</th><th>Ustoz</th><th>Davomat</th><th>To'lov</th></tr></thead><tbody>${rowHtml}</tbody></table></div>`;
+}
+function filterStudents(f) { studFilter = f; renderPageContent(); }
+function filterByGroup(g) { studGroup = g; renderPageContent(); }
+function filterSearch(q) {
+  const rows = document.querySelectorAll('.student-row');
+  const lower = q.toLowerCase();
+  rows.forEach(r => { r.style.display = r.textContent.toLowerCase().includes(lower) ? '' : 'none'; });
+}
+
+function renderTeachers() {
+  const teachers = [
+    {n:'Abdulloh Karimov',co:'Matematika',g:3,s:67,at:'95%',login:'abdulloh@radian.uz',pwd:'123456',salary:'8,000,000'},
+    {n:'Sardor Aliyev',co:'IELTS',g:4,s:82,at:'93%',login:'sardor@radian.uz',pwd:'123456',salary:'9,000,000'},
+    {n:'Madina Toshmatova',co:'Ingliz tili',g:3,s:54,at:'91%',login:'madina.t@radian.uz',pwd:'123456',salary:'7,500,000'},
+    {n:'Javohir Botirov',co:'Biologiya',g:3,s:62,at:'94%',login:'javohir@radian.uz',pwd:'123456',salary:'7,000,000'},
+    {n:'Aziza Raximova',co:'Kimyo',g:3,s:56,at:'89%',login:'aziza@radian.uz',pwd:'123456',salary:'7,000,000'},
+    {n:'Dilshod Karimov',co:'Fizika',g:4,s:78,at:'92%',login:'dilshod@radian.uz',pwd:'123456',salary:'8,500,000'},
+    {n:'Nodir Toshmatov',co:'CEFR',g:3,s:54,at:'90%',login:'nodir@radian.uz',pwd:'123456',salary:'7,000,000'},
+  ];
+  const total = teachers.reduce((a, t) => a + parseInt(t.salary.replace(/,/g, '')), 0);
+  const cards = teachers.map(t => {
+    const initials = t.n.split(' ').map(w => w[0]).join('').slice(0, 2);
+    return `<div class="card"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div style="width:40px;height:40px;border-radius:10px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff">${initials}</div><div><div style="font-weight:700;font-size:14px">${t.n}</div><div style="font-size:12px;color:var(--text2)">${t.co} Teacher</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;color:var(--text2);margin-bottom:8px"><div>\u{1F465} ${t.g} guruh</div><div>\u{1F39E}\u{FE0F} ${t.s} o'quvchi</div><div>\u{2705} ${t.at} davomat</div><div style="color:var(--green);font-weight:600">\u{1F4B0} ${t.salary} so'm</div></div><div style="background:var(--bg);border-radius:6px;padding:6px 8px;font-size:10px;color:var(--text2)">\u{1F4E7} ${t.login} \u{1F511} ${t.pwd}</div></div>`;
+  }).join('');
+  return `<div style="margin-bottom:20px"><h3 style="font-size:18px;font-weight:700">\u{1F9D1}\u{200D}\u{1F3EB} O'qituvchilar</h3><p style="font-size:13px;color:var(--text2)">${teachers.length} o'qituvchi \u00B7 Jami oylik: ${total.toLocaleString()} so'm</p></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px">${cards}</div>`;
+}
+
+function renderCourses() {
+  const courses = [
+    {n:'Matematika',e:'\u{1F9EE}',g:8,t:['Abdulloh','Dilshod','Nodir'],s:186,price:'500,000',sub:['2-3 sinf','5-6 sinf','8-9 sinf','Abituriyent','Milliy Sertifikat']},
+    {n:'Ingliz tili',e:'\u{1F1EC}\u{1F1E7}',g:6,t:['Madina','Sardor'],s:142,price:'400,000',sub:['Beginner','Elementary','Pre-Intermediate','Intermediate','Upper-Intermediate']},
+    {n:'IELTS',e:'\u{1F393}',g:5,t:['Sardor','Azizbek'],s:98,price:'500,000',sub:['Foundation','IELTS','Advanced']},
+    {n:'CEFR',e:'\u{1F4DC}',g:3,t:['Nodir'],s:54,price:'450,000',sub:['A1','A2','B1','B2','C1']},
+    {n:'Fizika',e:'\u{269B}\u{FE0F}',g:4,t:['Dilshod','Abdulloh'],s:78,price:'450,000',sub:['Fizika','Abituriyent']},
+    {n:'Kimyo',e:'\u{1F9EA}',g:3,t:['Aziza'],s:56,price:'400,000',sub:['Kimyo','Abituriyent']},
+    {n:'Biologiya',e:'\u{1F9EC}',g:3,t:['Javohir'],s:62,price:'400,000',sub:['Biologiya','Abituriyent']},
+    {n:'Ona tili',e:'\u{1F4D6}',g:2,t:['Nodir'],s:38,price:'350,000',sub:['Ona tili','Adabiyot']},
+    {n:'Tarix',e:'\u{1F3DB}\u{FE0F}',g:2,t:['Nodir'],s:42,price:'350,000',sub:['Tarix','Abituriyent']},
+    {n:'Huquqshunoslik',e:'\u{2696}\u{FE0F}',g:1,t:['Nodir'],s:18,price:'400,000',sub:['Huquqshunoslik']},
+    {n:'Rus tili',e:'\u{1F1F7}\u{1F1FA}',g:2,t:['Dilnoza'],s:34,price:'350,000',sub:['Beginner','Razgovor']},
+    {n:'Prezident maktabi',e:'\u{1F9E0}',g:2,t:['Abdulloh','Sardor'],s:28,price:'600,000',sub:['Matematika','Ingliz tili']},
+    {n:'Shaxmat',e:'\u{265F}\u{FE0F}',g:1,t:['Nodir'],s:22,price:'200,000',sub:['Shaxmat']},
+    {n:'IT',e:'\u{1F4BB}',g:2,t:['Dilshod'],s:36,price:'450,000',sub:['Programming','Web']}
+  ];
+  const total = courses.reduce((a, c) => a + c.s, 0);
+  const cards = courses.map(c => `<div class="course-card"><div class="cc-top"><span class="cc-emoji">${c.e}</span><span class="cc-name">${c.n}</span></div><div class="cc-stats">${c.g} guruh \u00B7 ${c.t.length} ustoz \u00B7 <strong style="color:var(--green)">${c.s}</strong> o'quvchi</div><div style="font-size:11px;color:var(--green);font-weight:600;margin:6px 0">\u{1F4B0} ${c.price} so'm/oy</div><div style="font-size:10px;color:var(--text2);margin-bottom:6px">\u{1F9D1}\u{200D}\u{1F3EB} ${c.t.join(', ')}</div><div class="cc-tags">${c.sub.map(s => `<span class="cc-tag">${s}</span>`).join('')}</div></div>`).join('');
+  return `<div style="margin-bottom:20px"><h3 style="font-size:18px;font-weight:700">\u{1F4DA} Kurslar</h3><p style="font-size:13px;color:var(--text2)">${courses.length} ta kurs/fan \u00B7 ${total} o'quvchi</p></div><div class="course-grid">${cards}</div>`;
+}
+
+function renderGroups() {
+  const groups = [
+    {n:'MAT-01',co:'Matematika',lv:'2-3 sinf',t:'Abdulloh',s:16,m:20,sh:'101',d:'Dush/Chor/Jum',tm:'09:00-10:30'},
+    {n:'MAT-02',co:'Matematika',lv:'5-6 sinf',t:'Abdulloh',s:18,m:20,sh:'101',d:'Dush/Chor/Jum',tm:'17:00-18:30'},
+    {n:'IELTS-01',co:'IELTS',lv:'Intermediate',t:'Sardor',s:17,m:20,sh:'201',d:'Dush/Chor/Jum',tm:'09:00-10:30'},
+    {n:'IELTS-02',co:'IELTS',lv:'Foundation',t:'Sardor',s:15,m:20,sh:'202',d:'Sesh/Pay/Shan',tm:'18:00-19:30'},
+    {n:'ENG-05',co:'Ingliz tili',lv:'Beginner',t:'Madina',s:14,m:20,sh:'102',d:'Dush/Chor/Jum',tm:'11:00-12:30'},
+    {n:'BIO-01',co:'Biologiya',lv:'Abituriyent',t:'Javohir',s:19,m:20,sh:'301',d:'Sesh/Pay/Shan',tm:'14:00-15:30'},
+    {n:'CHEM-01',co:'Kimyo',lv:'Abituriyent',t:'Aziza',s:16,m:20,sh:'302',d:'Sesh/Pay/Shan',tm:'14:00-15:30'},
+    {n:'PHY-01',co:'Fizika',lv:'Abituriyent',t:'Dilshod',s:18,m:20,sh:'201',d:'Dush/Chor/Jum',tm:'18:00-19:30'},
+  ];
+  const cards = groups.map(g => `<div class="card"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px"><div><div style="font-weight:700;font-size:15px">${g.n}</div><div style="font-size:12px;color:var(--text2)">${g.co} \u00B7 ${g.lv}</div></div><span class="badge ${g.s >= g.m ? 'red' : 'green'}">${g.s}/${g.m}</span></div><div style="font-size:12px;color:var(--text2);margin-bottom:8px">\u{1F9D1}\u{200D}\u{1F3EB} ${g.t} | \u{1F3EB} Xona ${g.sh}</div><div style="font-size:12px;color:var(--text2);margin-bottom:10px">\u{1F4C5} ${g.d} | \u{23F0} ${g.tm}</div><div class="progress"><div class="progress-fill" style="width:${(g.s / g.m) * 100}%"></div></div></div>`).join('');
+  return `<div style="margin-bottom:20px"><h3 style="font-size:18px;font-weight:700">\u{1F465} Guruhlar</h3><p style="font-size:13px;color:var(--text2)">${groups.length} faol guruh</p></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">${cards}</div>`;
+}
+
+function renderSchedule() {
+  const days = ['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
+  const schedule = [
+    {d:0,t:'09:00',g:'MAT-01',co:'Matematika',te:'Abdulloh',sh:'101'},
+    {d:0,t:'09:00',g:'IELTS-01',co:'IELTS',te:'Sardor',sh:'201'},
+    {d:0,t:'11:00',g:'ENG-05',co:'Ingliz tili',te:'Madina',sh:'102'},
+    {d:0,t:'17:00',g:'MAT-02',co:'Matematika',te:'Abdulloh',sh:'101'},
+    {d:0,t:'18:00',g:'PHY-01',co:'Fizika',te:'Dilshod',sh:'201'},
+    {d:2,t:'09:00',g:'IELTS-02',co:'IELTS',te:'Sardor',sh:'202'},
+    {d:2,t:'14:00',g:'BIO-01',co:'Biologiya',te:'Javohir',sh:'301'},
+    {d:2,t:'14:00',g:'CHEM-01',co:'Kimyo',te:'Aziza',sh:'302'},
+    {d:2,t:'18:00',g:'IELTS-01',co:'IELTS',te:'Sardor',sh:'201'},
+    {d:4,t:'09:00',g:'MAT-01',co:'Matematika',te:'Abdulloh',sh:'101'},
+    {d:4,t:'09:00',g:'IELTS-01',co:'IELTS',te:'Sardor',sh:'201'},
+    {d:4,t:'11:00',g:'ENG-05',co:'Ingliz tili',te:'Madina',sh:'102'},
+  ];
+  const rows = schedule.map(s => `<tr><td>${s.t}</td><td><span class="badge navy">${s.g}</span></td><td>${s.co}</td><td>${s.te}</td><td>Xona ${s.sh}</td></tr>`).join('');
+  return `<div style="margin-bottom:20px"><h3 style="font-size:18px;font-weight:700">\u{1F4C5} Jadval</h3><p style="font-size:13px;color:var(--text2)">${days.length} kunlik jadval</p></div><div class="card"><table class="table"><thead><tr><th>Vaqt</th><th>Guruh</th><th>Fan</th><th>Ustoz</th><th>Xona</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function renderAttendance() {
+  const att = [
+    {n:'Muhammad Ali',gr:'IELTS-01',st:'present'},{n:'Madina Karimova',gr:'MAT-02',st:'absent'},
+    {n:'Azizbek Rahimov',gr:'BIO-01',st:'present'},{n:'Sardor Aliyev',gr:'IELTS-01',st:'late'},
+    {n:'Javohir Karimov',gr:'PHY-01',st:'present'},{n:'Dilshod Raximov',gr:'ENG-05',st:'present'},
+    {n:'Nodirbek Sattorov',gr:'CHEM-01',st:'present'},{n:'Abdulloh Karimov',gr:'MAT-01',st:'present'},
+    {n:'Anvar Aliyev',gr:'HIS-01',st:'present'},{n:'Malika Toshmatova',gr:'RUS-01',st:'absent'},
+  ];
+  const present = att.filter(a => a.st === 'present').length;
+  const late = att.filter(a => a.st === 'late').length;
+  const rate = Math.round(((present + late) / att.length) * 100);
+  const rows = att.map(a => {
+    const badge = a.st === 'present' ? '<span class="badge green">✅ Keldi</span>' : a.st === 'absent' ? '<span class="badge red">❌ Kelmadi</span>' : '<span class="badge gold">🟡 Kechikdi</span>';
+    return `<tr><td><strong>${a.n}</strong></td><td><span class="badge navy">${a.gr}</span></td><td>${badge}</td></tr>`;
+  }).join('');
+  return `<div style="display:flex;gap:16px;margin-bottom:20px;align-items:center"><h3 style="font-size:18px;font-weight:700">\u{2705} Davomat \u2014 Bugun</h3><span class="badge green" style="font-size:13px;padding:6px 14px">${present + late}/${att.length} Keldi</span><span class="badge navy" style="font-size:13px;padding:6px 14px">${rate}%</span></div><div class="card"><table class="table"><thead><tr><th>O'quvchi</th><th>Guruh</th><th>Holat</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function renderExams() {
+  const exams = [
+    {s:'20.08.2026',co:'IELTS',gr:'IELTS-01',te:'Sardor',avg:82,st:'done',ans:true,notif:true},
+    {s:'18.08.2026',co:'Matematika',gr:'MAT-01',te:'Abdulloh',avg:78,st:'done',ans:true,notif:true},
+    {s:'25.08.2026',co:'Biologiya',gr:'BIO-01',te:'Javohir',avg:null,st:'pending',ans:false,notif:false},
+    {s:'27.08.2026',co:'Fizika',gr:'PHY-01',te:'Dilshod',avg:null,st:'pending',ans:false,notif:false},
+  ];
+  const results = [
+    {st:'Muhammad Ali',gr:'IELTS-01',baho:85,ok:true},
+    {st:'Sardor Aliyev',gr:'IELTS-01',baho:79,ok:true},
+    {st:'Abdulloh Karimov',gr:'MAT-01',baho:92,ok:true},
+    {st:'Madina Karimova',gr:'MAT-01',baho:71,ok:true},
+  ];
+  const rows = exams.map(e => `<tr><td>${e.s}</td><td>${e.co}</td><td><span class="badge navy">${e.gr}</span></td><td>${e.te}</td><td>${e.avg ? '<strong>' + e.avg + '%</strong>' : '\u2014'}</td><td>${e.ans ? '<span class="badge green">Qoshilgan</span>' : '<span class="badge gold">Kutilmoqda</span>'}</td><td>${e.notif ? '<span class="badge green">Yuborilgan</span>' : '<span class="badge navy">\u2014</span>'}</td><td>${e.st === 'done' ? '<span class="badge green">Tugagan</span>' : '<span class="badge gold">Kutilmoqda</span>'}</td></tr>`).join('');
+  const resultRows = results.map(r => `<tr><td><strong>${r.st}</strong></td><td><span class="badge navy">${r.gr}</span></td><td><strong style="color:${r.baho >= 80 ? 'var(--green)' : 'var(--red)'}">${r.baho}%</strong></td><td>${r.ok ? '<span class="badge green">✅</span>' : '<span class="badge gold">⏳</span>'}</td></tr>`).join('');
+  return `<div style="margin-bottom:20px"><h3 style="font-size:18px;font-weight:700">\u{1F4DD} Imtihonlar</h3><p style="font-size:13px;color:var(--text2)">Imtihon qo'shish → guruh tanlash → ishlash → javob qo'shish → ota-ona xabar</p></div>
+  <div class="card" style="margin-bottom:16px"><div class="card-title">\u{1F4CB} Imtihonlar jadvali</div><table class="table"><thead><tr><th>Sana</th><th>Fan</th><th>Guruh</th><th>Ustoz</th><th>O'rtacha</th><th>Javoblar</th><th>Ota-ona</th><th>Holat</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="card"><div class="card-title">\u{1F4CA} So'nggi natijalar — IELTS-01 (20.08.2026)</div><table class="table"><thead><tr><th>O'quvchi</th><th>Guruh</th><th>Baho</th><th>Tekshirilgan</th></tr></thead><tbody>${resultRows}</tbody></table></div>`;
+}
+
+function renderPayments() {
+  const payments = [
+    {n:'Muhammad Ali',co:'IELTS',am:'500,000',st:'paid',dt:'20.08.2026'},
+    {n:'Madina Karimova',co:'Matematika',am:'300,000',st:'debt',dt:'25.08.2026'},
+    {n:'Azizbek Rahimov',co:'Biologiya',am:'400,000',st:'paid',dt:'19.08.2026'},
+    {n:'Sardor Aliyev',co:'IELTS',am:'500,000',st:'paid',dt:'18.08.2026'},
+    {n:'Javohir Karimov',co:'Fizika',am:'0',st:'debt',dt:'15.08.2026'},
+    {n:'Dilshod Raximov',co:'Ingliz tili',am:'400,000',st:'paid',dt:'20.08.2026'},
+    {n:'Nodirbek Sattorov',co:'Kimyo',am:'200,000',st:'partial',dt:'22.08.2026'},
+    {n:'Abdulloh Karimov',co:'Matematika',am:'500,000',st:'paid',dt:'17.08.2026'},
+  ];
+  const totalPaid = payments.filter(p => p.st === 'paid').reduce((a, p) => a + parseInt(p.am.replace(/,/g, '')), 0);
+  const debtTotal = payments.filter(p => p.st === 'debt').reduce((a, p) => a + 500000 - parseInt(p.am.replace(/,/g, '')), 0);
+  const unpaid = payments.filter(p => p.st !== 'paid').length;
+  const rows = payments.map(p => {
+    const badge = p.st === 'paid' ? '<span class="badge green">To\'langan</span>' : p.st === 'debt' ? '<span class="badge red">Qarz</span>' : '<span class="badge gold">Qisman</span>';
+    return `<tr><td><strong>${p.n}</strong></td><td>${p.co}</td><td>${p.am}</td><td>${p.dt}</td><td>${badge}</td></tr>`;
+  }).join('');
+  return `<div style="margin-bottom:20px"><h3 style="font-size:18px;font-weight:700">\u{1F4B0} To'lovlar</h3></div>
+  <div style="display:flex;gap:12px;margin-bottom:20px"><div style="flex:1;background:rgba(98,209,123,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">JAMI TO'LANGAN</div><div style="font-size:20px;font-weight:800;color:var(--green)">${(totalPaid / 1000000).toFixed(1)}M</div></div><div style="flex:1;background:rgba(231,76,60,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">QARZDORLIK</div><div style="font-size:20px;font-weight:800;color:var(--red)">${(debtTotal / 1000000).toFixed(1)}M</div></div><div style="flex:1;background:rgba(139,92,246,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">TO'LANMAGAN</div><div style="font-size:20px;font-weight:800;color:var(--purple)">${unpaid}</div></div></div>
+  <div class="card"><table class="table"><thead><tr><th>O'quvchi</th><th>Kurs</th><th>Miqdor</th><th>Sana</th><th>Holat</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function renderReports() {
+  const months = ['Yan','Fev','Mar','Apr','May','Iyun','Iyul','Avg','Sen','Okt','Noy','Dek'];
+  const revenue = [12,15,14,18,20,22,19,24,21,18,16,15];
+  const maxR = Math.max(...revenue);
+  const bars = months.map((m, i) => `<div class="chart-bar" style="height:${(revenue[i] / maxR) * 100}%" data-label="${m}"></div>`).join('');
+  const totalRev = revenue.reduce((a, b) => a + b, 0);
+  return `<h3 style="font-size:18px;font-weight:700;margin-bottom:20px">\u{1F4C8} Hisobotlar</h3>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+    <div style="background:rgba(98,209,123,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">JAMI DAROMAD</div><div style="font-size:22px;font-weight:800;color:var(--green)">${totalRev}.4M</div></div>
+    <div style="background:rgba(231,76,60,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">XARAJAT</div><div style="font-size:22px;font-weight:800;color:var(--red)">24.2M</div></div>
+    <div style="background:rgba(59,130,246,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">SOF FOYDA</div><div style="font-size:22px;font-weight:800;color:var(--blue)">${totalRev - 24}.2M</div></div>
+    <div style="background:rgba(139,92,246,.08);border-radius:12px;padding:16px;text-align:center"><div style="font-size:10px;color:var(--muted)">QOSHILGAN</div><div style="font-size:22px;font-weight:800;color:var(--purple)">1,179</div></div>
+  </div>
+  <div class="two-col"><div class="card"><div class="card-title">\u{1F4C8} Oylik daromad (mln so'm)</div><div class="chart-bars" id="revenueChart">${bars}</div></div>
+  <div class="card"><div class="card-title">\u{1F4CA} Kurslar bo'yicha</div><table class="table"><thead><tr><th>Kurs</th><th>O'quvchi</th><th>Daromad</th><th>%</th></tr></thead><tbody><tr><td>\u{1F9EE} Matematika</td><td>186</td><td style="font-weight:700">18.6M</td><td><div class="progress" style="width:80px"><div class="progress-fill" style="width:35%"></div></div></td></tr><tr><td>\u{1F393} IELTS</td><td>98</td><td style="font-weight:700">14.2M</td><td><div class="progress" style="width:80px"><div class="progress-fill" style="width:27%"></div></div></td></tr><tr><td>\u{1F1EC}\u{1F1E7} Ingliz tili</td><td>142</td><td style="font-weight:700">12.8M</td><td><div class="progress" style="width:80px"><div class="progress-fill" style="width:24%"></div></div></td></tr><tr><td>\u{269B}\u{FE0F} Fizika</td><td>78</td><td style="font-weight:700">8.4M</td><td><div class="progress" style="width:80px"><div class="progress-fill" style="width:16%"></div></div></td></tr></tbody></table></div></div>
+  <div class="card"><div class="card-title">\u{1F4B8} Oylik xarajatlar</div><table class="table"><thead><tr><th>Turi</th><th>Miqdor</th><th>%</th><th>Izoh</th></tr></thead><tbody><tr><td>\u{1F4B0} Oylik ish haqi</td><td style="font-weight:700;color:var(--red)">12,000,000</td><td>49%</td><td>7 ta ustoz</td></tr><tr><td>\u{1F3E2} Ijara</td><td style="font-weight:700;color:var(--red)">8,000,000</td><td>33%</td><td>Oylik ijara</td></tr><tr><td>\u{1F4E2} Reklama</td><td style="font-weight:700;color:var(--red)">3,000,000</td><td>12%</td><td>Instagram + Telegram</td></tr><tr><td>\u{26A1} Kommunal</td><td style="font-weight:700;color:var(--red)">1,700,000</td><td>7%</td><td>Elektr + Internet</td></tr></tbody></table></div>`;
+}
+
+function renderSettings() {
+  return `<h3 style="font-size:18px;font-weight:700;margin-bottom:20px">\u{2699}\u{FE0F} Academy sozlamalari</h3><div class="card"><div class="card-title">\u{1F3E2} Radian O'quv Markazi</div><div style="font-size:13px"><div class="form-group"><label>Nom</label><input class="form-input" value="Radian O'quv Markazi" /></div><div class="form-group"><label>Manzil</label><input class="form-input" value="Baliqchi tumani, Chinobod shaharchasi" /></div><div class="form-group"><label>Telefon</label><input class="form-input" value="+998 91 064 11 44" /></div><div class="form-group"><label>Email</label><input class="form-input" value="info@radian.uz" /></div><button style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:600;cursor:pointer">Saqlash</button></div></div>`;
+}
+
+function renderAuditLogs() {
+  const logs = [
+    {t:'14:30',u:'Radian Admin',act:'CREATE',ent:'Student',det:"Madina Karimova qo'shildi"},
+    {t:'13:15',u:'Radian Admin',act:'UPDATE',ent:'Payment',det:'Muhammad Ali — 500,000 UZS'},
+    {t:'12:00',u:'Sardor (Teacher)',act:'MARK',ent:'Attendance',det:'IELTS-01 — 14/17 present'},
+    {t:'11:30',u:'Abdulloh (Teacher)',act:'CREATE',ent:'Homework',det:'MAT-01 — Matematika topshiriq'},
+    {t:'10:45',u:'Radian Admin',act:'UPDATE',ent:'Group',det:'BIO-01 — 1 o\'quvchi qo\'shildi'},
+  ];
+  const rows = logs.map(l => {
+    const cls = l.act === 'CREATE' ? 'green' : l.act === 'UPDATE' ? 'gold' : 'blue';
+    return `<tr><td>${l.t}</td><td>${l.u}</td><td><span class="badge ${cls}">${l.act}</span></td><td>${l.ent}</td><td style="font-size:12px">${l.det}</td></tr>`;
+  }).join('');
+  return `<h3 style="font-size:18px;font-weight:700;margin-bottom:20px">\u{1F4DD} Audit Logs</h3><div class="card"><table class="table"><thead><tr><th>Vaqt</th><th>Foydalanuvchi</th><th>Amal</th><th>Ob'ekt</th><th>Tavsif</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function renderAllUsers() {
+  const users = [
+    {n:'Radian Admin',rl:'Admin',em:'admin@radian.uz',st:true},
+    {n:'Nodira Buxgalter',rl:'Buxgalter',em:'nodira@radian.uz',st:true},
+    {n:'Azizbek Teacher',rl:'O\'qituvchi',em:'azizbek@radian.uz',st:true},
+    {n:'Muhammad Ali',rl:'O\'quvchi',em:'muhammad@radian.uz',st:true},
+    {n:'Anvar Aliyev',rl:'Ota-ona',em:'anvar@radian.uz',st:true},
+  ];
+  const rows = users.map(u => `<tr><td><strong>${u.n}</strong></td><td><span class="badge green">${u.rl}</span></td><td>${u.em}</td><td><span class="badge green">Faol</span></td></tr>`).join('');
+  return `<h3 style="font-size:18px;font-weight:700;margin-bottom:20px">\u{1F465} Barcha foydalanuvchilar</h3><div class="card"><table class="table"><thead><tr><th>Foydalanuvchi</th><th>Rol</th><th>Email</th><th>Holat</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+
+
+function renderMyGroups() {
+  const groups = [
+    {n:'IELTS-24',s:18,m:20,d:'Dush/Chor/Jum',tm:'18:00',sh:'201'},
+    {n:'ENG-12',s:16,m:20,d:'Sesh/Pay',tm:'11:00',sh:'102'},
+    {n:'IELTS-26',s:21,m:20,d:'Dush/Chor/Jum',tm:'14:00',sh:'301'},
+  ];
+  const cards = groups.map(g => `<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong>${g.n}</strong><span class="badge ${g.s >= g.m ? 'red' : 'green'}">${g.s}/${g.m}</span></div><div style="font-size:12px;color:var(--text2)">${g.d} ${g.tm} \u00B7 Xona ${g.sh}</div></div>`).join('');
+  return `<div class="card" style="margin-bottom:16px"><div class="card-title">\u{1F465} Mening guruhlarim</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px">${cards}</div></div>`;
+}
+
+function renderMyCourses() {
+  return `<div class="card"><div class="card-title">\u{1F4DA} Mening kurslarim</div><div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px"><div style="display:flex;justify-content:space-between;align-items:center"><div><strong>IELTS</strong><div style="font-size:12px;color:var(--text2);margin-top:2px">Level: Intermediate \u00B7 Teacher: Azizbek</div></div><span class="badge green">Faol</span></div><div style="margin-top:12px;font-size:12px;color:var(--text2)">Dush/Chor/Jum 18:00-19:30 \u00B7 Xona 201</div></div></div>`;
+}
+
+function renderMySchedule() {
+  return `<div class="card"><div class="card-title">\u{1F4C5} Dars jadvalim</div><table class="table"><thead><tr><th>Kun</th><th>Vaqt</th><th>Fan</th><th>Ustoz</th><th>Xona</th></tr></thead><tbody><tr><td>Dushanba</td><td>18:00</td><td>IELTS</td><td>Azizbek</td><td>201</td></tr><tr><td>Chorshanba</td><td>18:00</td><td>IELTS</td><td>Azizbek</td><td>201</td></tr><tr><td>Juma</td><td>18:00</td><td>IELTS</td><td>Azizbek</td><td>201</td></tr></tbody></table></div>`;
+}
+
+function renderMyAttendance() {
+  const days = [1,2,3,4,5,7,8,9,10,11,12,14,15,16,17,18,19];
+  const absent = [5, 14];
+  const boxes = days.map(d => {
+    const present = !absent.includes(d);
+    return `<div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;background:${present ? 'rgba(98,209,123,.1)' : 'rgba(231,76,60,.1)'};color:${present ? 'var(--green)' : 'var(--red)'}">${d}</div>`;
+  }).join('');
+  return `<div class="card"><div class="card-title">\u{2705} Davomatim</div><div style="display:flex;gap:6px;flex-wrap:wrap">${boxes}</div><div style="margin-top:16px;background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:10px;color:var(--muted)">JAMI DAVOMAT</div><div style="font-size:28px;font-weight:800;color:var(--green)">94%</div></div></div>`;
+}
+
+function renderHomework() {
+  return `<div style="margin-bottom:20px"><h3 style="font-size:18px;font-weight:700">\u{1F4DA} Homework</h3></div><div class="card"><table class="table"><thead><tr><th>Topshiriq</th><th>Guruh</th><th>Muddat</th><th>Holat</th></tr></thead><tbody><tr><td>IELTS Writing Task 2</td><td>IELTS-24</td><td>22.08.2026</td><td><span class="badge red">Bajarmadi</span></td></tr><tr><td>Grammar Exercise Ch.5</td><td>ENG-12</td><td>21.08.2026</td><td><span class="badge green">Bajarildi</span></td></tr><tr><td>Vocabulary Test</td><td>IELTS-26</td><td>25.08.2026</td><td><span class="badge gold">Kutilmoqda</span></td></tr></tbody></table></div>`;
+}
+
+
+function renderChildren() {
+  return `<div class="card" style="border-left:3px solid var(--gold)"><div class="card-title">\u{1F393} Farzandim — Muhammad Ali</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px"><div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--green)">94%</div><div style="font-size:11px;color:var(--text2)">Davomat</div></div><div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--blue)">82%</div><div style="font-size:11px;color:var(--text2)">Baholar</div></div><div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--navy)">IELTS</div><div style="font-size:11px;color:var(--text2)">Kurs</div></div><div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--green)">Paid</div><div style="font-size:11px;color:var(--text2)">To'lov</div></div></div></div>`;
+}
+
+// ─── Chart Animation ───
+function animateChart() {
+  const el = document.getElementById('revenueChart');
+  if (!el) return;
+  const bars = el.querySelectorAll('.chart-bar');
+  bars.forEach(bar => {
+    const h = bar.style.height;
+    bar.style.height = '0%';
+    requestAnimationFrame(() => { bar.style.height = h; });
+  });
+}
+</script>
+</body>
+</html>
