@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radian CRM — Architecture Explained</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#202B4D;--green:#62D17B;--gold:#F3C94B;--bg:#F7F8FA;--card:#fff;--border:#E8EBF0;--text:#202B4D;--text2:#697386;--muted:#9AA3B2;--red:#E74C3C;--blue:#3B82F6;--purple:#8B5CF6}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.container{max-width:960px;margin:0 auto;padding:32px 24px}
+h1{font-size:28px;font-weight:800;margin-bottom:8px}
+h2{font-size:20px;font-weight:700;margin:32px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--green)}
+h3{font-size:16px;font-weight:600;margin:20px 0 10px}
+p,.note{font-size:14px;color:var(--text2);margin-bottom:12px}
+.note{background:rgba(98,209,123,.08);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 8px 8px 0;font-size:13px}
+code{background:var(--navy);color:#fff;padding:2px 6px;border-radius:4px;font-size:12px;font-family:'SF Mono',Consolas,monospace}
+
+/* Architecture Diagram */
+.arch{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;margin:16px 0;position:relative}
+.arch svg{width:100%;height:auto;display:block}
+
+/* Role Cards */
+.roles{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin:16px 0}
+.role{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;transition:all .2s;cursor:default}
+.role:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.role .emoji{font-size:28px;margin-bottom:6px}
+.role .name{font-size:13px;font-weight:700}
+.role .desc{font-size:11px;color:var(--muted);margin-top:2px}
+.role.super{border-color:var(--gold);background:linear-gradient(135deg,rgba(243,201,75,.05),rgba(98,209,123,.03))}
+.role.super .name{color:var(--gold)}
+
+/* Flow Diagram */
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:12px}
+.flow-step{background:var(--navy);color:#fff;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;white-space:nowrap}
+.flow-step.green{background:var(--green);color:#fff}
+.flow-step.gold{background:var(--gold);color:var(--navy)}
+.flow-step.red{background:var(--red);color:#fff}
+.flow-arrow{color:var(--muted);font-size:16px}
+
+/* Code Block */
+.code-block{background:var(--navy);color:#e2e8f0;padding:16px 20px;border-radius:12px;font-family:'SF Mono',Consolas,monospace;font-size:12px;line-height:1.7;overflow-x:auto;margin:12px 0;white-space:pre}
+.code-block .kw{color:var(--green)}
+.code-block .str{color:var(--gold)}
+.code-block .fn{color:var(--blue)}
+.code-block .cm{color:var(--muted)}
+
+/* Comparison Table */
+.cmp-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+.cmp-table th{text-align:left;padding:10px 12px;background:var(--navy);color:#fff;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.cmp-table th:first-child{border-radius:8px 0 0 0}
+.cmp-table th:last-child{border-radius:0 8px 0 0}
+.cmp-table td{padding:10px 12px;border-bottom:1px solid var(--border)}
+.cmp-table tr:last-child td{border-bottom:none}
+.cmp-table tr:hover td{background:rgba(98,209,123,.03)}
+
+/* State Diagram */
+.state-box{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600}
+.state-box.active{background:rgba(98,209,123,.12);color:var(--green)}
+.state-box.pending{background:rgba(243,201,75,.12);color:#b89a1e}
+.state-box.error{background:rgba(231,76,60,.1);color:var(--red)}
+.state-box.info{background:rgba(59,130,246,.1);color:var(--blue)}
+
+/* Callout */
+.callout{display:flex;gap:12px;padding:16px;border-radius:12px;margin:16px 0;font-size:13px}
+.callout.green{background:rgba(98,209,123,.08);border:1px solid rgba(98,209,123,.2)}
+.callout.gold{background:rgba(243,201,75,.08);border:1px solid rgba(243,201,75,.2)}
+.callout.red{background:rgba(231,76,60,.06);border:1px solid rgba(231,76,60,.15)}
+.callout .icon{font-size:20px;flex-shrink:0}
+
+/* Animated Bar */
+.anim-bar{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin:8px 0}
+.anim-bar .fill{height:100%;border-radius:4px;transition:width 1s ease}
+.anim-bar .fill.green{background:var(--green)}
+.anim-bar .fill.gold{background:var(--gold)}
+.anim-bar .fill.red{background:var(--red)}
+.anim-bar .fill.blue{background:var(--blue)}
+
+/* Footer */
+footer{text-align:center;padding:32px 0;color:var(--muted);font-size:12px;border-top:1px solid var(--border);margin-top:40px}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>🏫 Radian O'quv Markazi CRM</h1>
+<p>Architecture, data flow, and role-based design of the education management system preview.</p>
+
+<!-- ═══ SECTION 1: What Is This ═══ -->
+<h2>1. What This Is</h2>
+<p>A <strong>single-file HTML demo</strong> (<code>preview.html</code>, 705 lines) that simulates the Radian education center's CRM interface. It has a login page, 6 role-based dashboards, and sidebar navigation — all without a backend.</p>
+
+<div class="note">
+<strong>Key insight:</strong> This is a static prototype, not a running application. All data is hardcoded in JavaScript. The value is in validating the UX, role permissions, and information architecture before building the real NestJS + PostgreSQL system.
+</div>
+
+<!-- ═══ SECTION 2: System Architecture ═══ -->
+<h2>2. System Architecture</h2>
+
+<div class="arch">
+<svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg">
+  <!-- Login Page -->
+  <rect x="20" y="20" width="160" height="100" rx="12" fill="#202B4D" stroke="none"/>
+  <text x="100" y="55" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">Login Page</text>
+  <text x="100" y="75" text-anchor="middle" fill="rgba(255,255,255,.5)" font-size="10">6 role cards</text>
+  <text x="100" y="95" text-anchor="middle" fill="#62D17B" font-size="10">Email + Password</text>
+
+  <!-- Arrow -->
+  <path d="M180 70 L240 70" stroke="#62D17B" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- ROLES Config -->
+  <rect x="240" y="20" width="140" height="100" rx="12" fill="#fff" stroke="#E8EBF0"/>
+  <text x="310" y="50" text-anchor="middle" fill="#202B4D" font-size="13" font-weight="700">ROLES Object</text>
+  <text x="310" y="68" text-anchor="middle" fill="#697386" font-size="10">nav, stats, config</text>
+  <text x="310" y="83" text-anchor="middle" fill="#697386" font-size="10">per role</text>
+  <text x="310" y="100" text-anchor="middle" fill="#F3C94B" font-size="10">6 roles defined</text>
+
+  <!-- Arrow -->
+  <path d="M380 70 L440 70" stroke="#62D17B" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- State -->
+  <rect x="440" y="20" width="120" height="100" rx="12" fill="#fff" stroke="#E8EBF0"/>
+  <text x="500" y="50" text-anchor="middle" fill="#202B4D" font-size="13" font-weight="700">State</text>
+  <text x="500" y="68" text-anchor="middle" fill="#697386" font-size="10">selectedRole</text>
+  <text x="500" y="83" text-anchor="middle" fill="#697386" font-size="10">currentPage</text>
+  <text x="500" y="98" text-anchor="middle" fill="#697386" font-size="10">studFilter</text>
+  <text x="500" y="113" text-anchor="middle" fill="#697386" font-size="10">studGroup</text>
+
+  <!-- Arrow -->
+  <path d="M560 70 L620 70" stroke="#62D17B" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- Render Pipeline -->
+  <rect x="620" y="20" width="160" height="100" rx="12" fill="#202B4D" stroke="none"/>
+  <text x="700" y="45" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">Render Pipeline</text>
+  <text x="700" y="63" text-anchor="middle" fill="#62D17B" font-size="10">renderSidebar()</text>
+  <text x="700" y="78" text-anchor="middle" fill="#62D17B" font-size="10">renderPageContent()</text>
+  <text x="700" y="93" text-anchor="middle" fill="#62D17B" font-size="10">renderPage() → dispatch</text>
+  <text x="700" y="108" text-anchor="middle" fill="#F3C94B" font-size="10">22 render functions</text>
+
+  <!-- Output -->
+  <rect x="20" y="160" width="760" height="140" rx="12" fill="#F7F8FA" stroke="#E8EBF0"/>
+  <text x="400" y="185" text-anchor="middle" fill="#202B4D" font-size="14" font-weight="700">Output: Two-Panel Layout</text>
+
+  <!-- Sidebar -->
+  <rect x="40" y="200" width="180" height="80" rx="8" fill="#202B4D"/>
+  <text x="130" y="225" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Sidebar</text>
+  <text x="130" y="242" text-anchor="middle" fill="rgba(255,255,255,.5)" font-size="9">Navy background</text>
+  <text x="130" y="257" text-anchor="middle" fill="#62D17B" font-size="9">Green active item</text>
+  <text x="130" y="272" text-anchor="middle" fill="rgba(255,255,255,.4)" font-size="9">Role-specific menu</text>
+
+  <!-- Arrow -->
+  <path d="M230 240 L280 240" stroke="#E8EBF0" stroke-width="2" fill="none" marker-end="url(#arrow2)"/>
+
+  <!-- Content -->
+  <rect x="280" y="200" width="480" height="80" rx="8" fill="#fff" stroke="#E8EBF0"/>
+  <text x="520" y="225" text-anchor="middle" fill="#202B4D" font-size="11" font-weight="600">Content Area</text>
+  <text x="520" y="242" text-anchor="middle" fill="#697386" font-size="9">Topbar (role info + search)</text>
+  <text x="520" y="257" text-anchor="middle" fill="#697386" font-size="9">Stats grid (2-8 cards)</text>
+  <text x="520" y="272" text-anchor="middle" fill="#697386" font-size="9">Charts, tables, forms</text>
+
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#62D17B"/></marker>
+    <marker id="arrow2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#E8EBF0"/></marker>
+  </defs>
+</svg>
+</div>
+
+<!-- ═══ SECTION 3: Roles ═══ -->
+<h2>3. The 6 Roles</h2>
+<p>Each role sees a completely different sidebar menu and dashboard. The same page IDs (like <code>students</code>, <code>payments</code>) render different content per role context.</p>
+
+<div class="roles">
+  <div class="role super"><div class="emoji">👑</div><div class="name">Super Admin</div><div class="desc">Platform-wide</div></div>
+  <div class="role"><div class="emoji">🏢</div><div class="name">Admin</div><div class="desc">Academy director</div></div>
+  <div class="role"><div class="emoji">🧑‍🏫</div><div class="name">Teacher</div><div class="desc">Teaching only</div></div>
+  <div class="role"><div class="emoji">👨‍🎓</div><div class="name">Student</div><div class="desc">Own progress</div></div>
+  <div class="role"><div class="emoji">👨‍👩‍👦</div><div class="name">Parent</div><div class="desc">Child tracking</div></div>
+  <div class="role"><div class="emoji">🧮</div><div class="name">Accountant</div><div class="desc">Finance only</div></div>
+</div>
+
+<h3>Nav Items Per Role</h3>
+<table class="cmp-table">
+  <tr><th>Role</th><th>Pages</th><th>Sections</th></tr>
+  <tr><td>👑 Super Admin</td><td>7</td><td>Platform, SaaS, Security</td></tr>
+  <tr><td>🏢 Admin</td><td>12</td><td>Management, Education, Finance, System</td></tr>
+  <tr><td>🧑‍🏫 Teacher</td><td>6</td><td>My Work (groups, lessons, attendance, grades, homework)</td></tr>
+  <tr><td>👨‍🎓 Student</td><td>7</td><td>Education (courses, schedule, attendance, homework, results), Finance</td></tr>
+  <tr><td>👨‍👩‍👦 Parent</td><td>6</td><td>Child info (attendance, results, schedule), Finance</td></tr>
+  <tr><td>🧮 Accountant</td><td>6</td><td>Finance (payments, debtors, invoices), Reports (income, expenses)</td></tr>
+</table>
+
+<!-- ═══ SECTION 4: Data Flow ═══ -->
+<h2>4. Data Flow: Login → Dashboard</h2>
+
+<div class="flow">
+  <div class="flow-step">User clicks role card</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step green">selectRole('admin')</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step">Fills email, enables button</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step green">quickLogin('admin')</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step gold">showDashboard('admin')</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step">Hides login, shows dashboard</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step green">renderSidebar()</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step green">renderPageContent()</div>
+</div>
+
+<h3>Navigation Click</h3>
+<div class="flow">
+  <div class="flow-step">User clicks sidebar item</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step green">navClick(el)</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step">Updates active class</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step">Sets currentPage = el.dataset.page</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step green">renderPageContent()</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step gold">renderPage(r)</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step green">Map lookup → renderStudents()</div>
+</div>
+
+<!-- ═══ SECTION 5: Page Dispatch ═══ -->
+<h2>5. Page Dispatch Map</h2>
+<p>The <code>renderPage()</code> function uses a map to dispatch to the correct renderer. 29 page keys, 22 unique render functions (7 aliases for reuse).</p>
+
+<div class="code-block"><span class="kw">const</span> P = {
+  dashboard: () => renderDashboard(r),  <span class="cm">// needs role context</span>
+  students: renderStudents,              <span class="cm">// standalone</span>
+  teachers: renderTeachers,
+  courses: renderCourses,
+  groups: renderGroups,
+  schedule: renderSchedule,
+  attendance: renderAttendance,
+  exams: renderExams,
+  payments: renderPayments,
+  reports: renderReports,
+  settings: renderSettings,
+  auditlogs: renderAuditLogs,
+  allusers: renderAllUsers,
+  mygroups: renderMyGroups,     <span class="cm">// teacher</span>
+  mycourses: renderMyCourses,   <span class="cm">// student</span>
+  myschedule: renderMySchedule,
+  myattendance: renderMyAttendance,
+  homework: renderHomework,
+  children: renderChildren,     <span class="cm">// parent</span>
+  <span class="cm">// Aliases — reuse existing renderers</span>
+  subscriptions: renderAllUsers, analytics: renderReports,
+  debtors: renderPayments, invoices: renderPayments,
+  monthlyincome: renderReports, expenses: renderReports,
+  grades: renderStudents, results: renderMyAttendance,
+  mypayments: renderMyCourses
+};</div>
+
+<!-- ═══ SECTION 6: State Management ═══ -->
+<h2>6. State Management</h2>
+<p>Four global variables control the entire application state. All are reset on logout.</p>
+
+<table class="cmp-table">
+  <tr><th>Variable</th><th>Type</th><th>Purpose</th><th>Reset on Logout</th></tr>
+  <tr><td><code>selectedRole</code></td><td>string|null</td><td>Which role is logged in</td><td><span class="state-box active">Yes</span></td></tr>
+  <tr><td><code>currentPage</code></td><td>string</td><td>Active sidebar page ID</td><td><span class="state-box active">Yes</span></td></tr>
+  <tr><td><code>studFilter</code></td><td>string</td><td>Student table filter (all/active/debt)</td><td><span class="state-box active">Yes</span></td></tr>
+  <tr><td><code>studGroup</code></td><td>string</td><td>Student group filter (all/GROUP-ID)</td><td><span class="state-box active">Yes</span></td></tr>
+</table>
+
+<div class="callout green">
+  <div class="icon">✅</div>
+  <div><strong>Verified:</strong> State leaks between roles were a bug. Now all 4 variables reset in <code>logout()</code>. Tested: set debt filter → logout → login as teacher → filter is "all".</div>
+</div>
+
+<!-- ═══ SECTION 7: Admin Features ═══ -->
+<h2>7. Admin Dashboard Features</h2>
+<p>The Admin role has the most pages (12) and the most complex data.</p>
+
+<table class="cmp-table">
+  <tr><th>Page</th><th>Content</th><th>Key Feature</th></tr>
+  <tr><td>📊 Dashboard</td><td>8 stat cards, revenue chart, debtors table</td><td>Welcome banner + notification badge</td></tr>
+  <tr><td>👨‍🎓 Students</td><td>10 students with login/password</td><td>Search, filter (All/Active/Debt), group dropdown</td></tr>
+  <tr><td>🧑‍🏫 Teachers</td><td>7 teachers with salary + login</td><td>Total salary shown, credentials per card</td></tr>
+  <tr><td>📚 Courses</td><td>14 subjects (Math → IT)</td><td>Teachers, prices, subcourses per card</td></tr>
+  <tr><td>👥 Groups</td><td>8 groups with schedule</td><td>Progress bars, room/time, capacity</td></tr>
+  <tr><td>📅 Schedule</td><td>12 lessons across 6 days</td><td>Group, teacher, room columns</td></tr>
+  <tr><td>✅ Attendance</td><td>10 students, present/absent/late</td><td>7/10 (70%) summary badge</td></tr>
+  <tr><td>📝 Exams</td><td>4 exams + results table</td><td>Answers status, parent notification status</td></tr>
+  <tr><td>💰 Payments</td><td>8 payment records</td><td>Total paid, debt total, unpaid count</td></tr>
+  <tr><td>📈 Reports</td><td>Revenue chart, course breakdown, expenses</td><td>ROI, per-course income, expense categories</td></tr>
+  <tr><td>⚙️ Settings</td><td>Academy info form</td><td>Name, address, phone, email fields</td></tr>
+  <tr><td>📝 Audit Logs</td><td>5 recent actions</td><td>CREATE/UPDATE/MARK badges, timestamps</td></tr>
+</table>
+
+<!-- ═══ SECTION 8: Student Filters ═══ -->
+<h2>8. Student Filtering (Working Example)</h2>
+<p>The student page has three independent filter dimensions that combine.</p>
+
+<div class="callout gold">
+  <div class="icon">🔍</div>
+  <div><strong>How it works:</strong> <code>filterStudents(f)</code> sets <code>studFilter</code> and re-renders. <code>filterByGroup(g)</code> sets <code>studGroup</code> and re-renders. Both filters are applied sequentially in <code>renderStudents()</code>. Search is a separate inline handler that hides/shows rows by text match.</div>
+</div>
+
+<table class="cmp-table">
+  <tr><th>Filter</th><th>Value</th><th>Rows Shown</th><th>Logic</th></tr>
+  <tr><td>Status</td><td><span class="state-box active">All</span></td><td>10</td><td>No filter</td></tr>
+  <tr><td>Status</td><td><span class="state-box active">Active</span></td><td>7</td><td><code>st === 'paid'</code></td></tr>
+  <tr><td>Status</td><td><span class="state-box error">Debt</span></td><td>3</td><td><code>st === 'debt' || st === 'partial'</code></td></tr>
+  <tr><td>Group</td><td><span class="state-box info">IELTS-01</span></td><td>2</td><td><code>gr === 'IELTS-01'</code></td></tr>
+  <tr><td>Both</td><td>Debt + IELTS-01</td><td>0</td><td>Intersection (no debt in IELTS-01)</td></tr>
+  <tr><td>Search</td><td>"Muhammad"</td><td>1</td><td>Text match across all columns</td></tr>
+  <tr><td>Search</td><td>"Madina"</td><td>2</td><td>Matches student name + teacher name in other rows</td></tr>
+</table>
+
+<!-- ═══ SECTION 9: CSS Design System ═══ -->
+<h2>9. Design System</h2>
+
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0">
+  <div style="background:var(--navy);color:#fff;padding:12px;border-radius:8px;text-align:center"><div style="font-size:11px;opacity:.6">Navy</div><div style="font-size:14px;font-weight:700">#202B4D</div><div style="font-size:10px;opacity:.5">Sidebar, text</div></div>
+  <div style="background:var(--green);color:#fff;padding:12px;border-radius:8px;text-align:center"><div style="font-size:11px;opacity:.8">Green</div><div style="font-size:14px;font-weight:700">#62D17B</div><div style="font-size:10px;opacity:.8">Active, success</div></div>
+  <div style="background:var(--gold);color:var(--navy);padding:12px;border-radius:8px;text-align:center"><div style="font-size:11px;opacity:.7">Gold</div><div style="font-size:14px;font-weight:700">#F3C94B</div><div style="font-size:10px;opacity:.7">Accent, super admin</div></div>
+  <div style="background:var(--red);color:#fff;padding:12px;border-radius:8px;text-align:center"><div style="font-size:11px;opacity:.8">Red</div><div style="font-size:14px;font-weight:700">#E74C3C</div><div style="font-size:10px;opacity:.8">Error, debt</div></div>
+  <div style="background:var(--blue);color:#fff;padding:12px;border-radius:8px;text-align:center"><div style="font-size:11px;opacity:.8">Blue</div><div style="font-size:14px;font-weight:700">#3B82F6</div><div style="font-size:10px;opacity:.8">Info, links</div></div>
+</div>
+
+<h3>CSS Component Inventory</h3>
+<table class="cmp-table">
+  <tr><th>Class Pattern</th><th>Count</th><th>Usage</th></tr>
+  <tr><td><code>.stat-*</code></td><td>6</td><td>Stat cards, icons, values, labels, changes</td></tr>
+  <tr><td><code>.badge.*</code></td><td>6</td><td>green/gold/red/navy/blue/purple status badges</td></tr>
+  <tr><td><code>.nav-*</code></td><td>3</td><td>Sidebar nav items, sections, section titles</td></tr>
+  <tr><td><code>.card*</code></td><td>3</td><td>Card container, title, course cards</td></tr>
+  <tr><td><code>.table</code></td><td>1</td><td>All data tables</td></tr>
+  <tr><td><code>.login-*</code></td><td>5</td><td>Login page layout, brand, features</td></tr>
+  <tr><td><code>.role-*</code></td><td>3</td><td>Role selection grid, cards</td></tr>
+  <tr><td><code>.progress*</code></td><td>2</td><td>Progress bar container + fill</td></tr>
+  <tr><td><code>.chart-*</code></td><td>2</td><td>Bar chart container + bars</td></tr>
+</table>
+
+<!-- ═══ SECTION 10: Bugs Found & Fixed ═══ -->
+<h2>10. Bugs Found & Fixed</h2>
+
+<table class="cmp-table">
+  <tr><th>Bug</th><th>Severity</th><th>Root Cause</th><th>Fix</th></tr>
+  <tr>
+    <td>5 sidebar items active simultaneously</td>
+    <td><span class="state-box pending">UX</span></td>
+    <td><code>i===0</code> checked index within each section, not globally</td>
+    <td>Global counter <code>navIdx++===0</code></td>
+  </tr>
+  <tr>
+    <td>Student filter buttons do nothing</td>
+    <td><span class="state-box error">Critical</span></td>
+    <td><code>renderStudents()</code> returns HTML but return value was discarded</td>
+    <td>Changed to call <code>renderPageContent()</code></td>
+  </tr>
+  <tr>
+    <td>Filter state leaks across logouts</td>
+    <td><span class="state-box pending">Correctness</span></td>
+    <td><code>studFilter</code>/<code>studGroup</code> not reset in <code>logout()</code></td>
+    <td>Added resets to logout function</td>
+  </tr>
+  <tr>
+    <td>5 nav items unmapped to pages</td>
+    <td><span class="state-box pending">Correctness</span></td>
+    <td>Missing entries in page dispatch map</td>
+    <td>All nav items now have <code>p</code> property</td>
+  </tr>
+  <tr>
+    <td>SuperAdmin nav uses <code>i</code> instead of <code>l</code></td>
+    <td><span class="state-box error">Rendering</span></td>
+    <td>Wrong property name for label</td>
+    <td>Fixed <code>i:</code> → <code>l:</code></td>
+  </tr>
+  <tr>
+    <td>Uzbek apostrophe breaks JS strings</td>
+    <td><span class="state-box error">Syntax</span></td>
+    <td><code>Qo'shilgan</code> inside single-quoted JS strings</td>
+    <td>Removed apostrophes from affected strings</td>
+  </tr>
+</table>
+
+<!-- ═══ SECTION 11: File Structure ═══ -->
+<h2>11. File Structure</h2>
+
+<div class="code-block"><span class="cm">preview.html</span> (705 lines)
+├── <span class="kw">&lt;style&gt;</span>     (165 lines)  <span class="cm">— CSS design system + components</span>
+├── <span class="kw">&lt;body&gt;</span>      (65 lines)   <span class="cm">— Login page + dashboard shell</span>
+└── <span class="kw">&lt;script&gt;</span>    (475 lines)  <span class="cm">— JavaScript application logic</span>
+    ├── ROLES config        <span class="cm">— 6 role definitions (nav, stats, colors)</span>
+    ├── State variables     <span class="cm">— 4 globals (selectedRole, currentPage, studFilter, studGroup)</span>
+    ├── Login/Logout        <span class="cm">— selectRole, quickLogin, handleLogin, showDashboard, logout</span>
+    ├── Sidebar rendering   <span class="cm">— renderSidebar, navClick</span>
+    ├── Page dispatch       <span class="cm">— renderPageContent, renderPage (map lookup)</span>
+    └── 22 page renderers   <span class="cm">— Each returns HTML string for one page</span></div>
+
+<!-- ═══ SECTION 12: What's Next ═══ -->
+<h2>12. What's Next (Architecture Gap)</h2>
+
+<div class="callout red">
+  <div class="icon">⚠️</div>
+  <div><strong>Core limitation:</strong> All mock data is scattered across 22 render functions. A student named "Muhammad Ali" is independently defined in 8+ places. Changing one copy breaks consistency. A centralized DATA object would fix this and enable a smooth transition to real API calls.</div>
+</div>
+
+<div class="callout gold">
+  <div class="icon">💡</div>
+  <div><strong>Topbar re-render:</strong> Every navigation click rebuilds the entire content area including the topbar. This loses search focus, scroll position, and form state. Splitting into <code>renderTopbar()</code> (once) and <code>renderContent()</code> (on nav) would fix this.</div>
+</div>
+
+<footer>
+  Radian O'quv Markazi CRM — Architecture Explanation<br>
+  Generated from 705-line preview.html · 6 roles · 22 render functions · 44 navigable pages
+</footer>
+
+</div>
+</body>
+</html>
