@@ -297,13 +297,16 @@ const ROLES = {
     color: 'var(--green)', email: 'azizbek@radian.uz',
     nav: [
       {s:'Asosiy', i:[{e:'\u{1F4CA}',l:'Dashboard',p:'dashboard'}]},
-      {s:'Mening ishim', i:[{e:'\u{1F465}',l:"Guruhlarim",p:'mygroups'},{e:'\u{1F4C5}',l:'Darslarim',p:'mylessons'},{e:'\u{2705}',l:'Davomat',p:'attendance'},{e:'\u{1F4DD}',l:'Baholar',p:'grades'},{e:'\u{1F4DA}',l:'Homework',p:'homework'}]}
+      {s:'Mening ishim', i:[{e:'\u{1F465}',l:"Guruhlarim",p:'mygroups'},{e:'\u{1F4C5}',l:'Darslarim',p:'mylessons'},{e:'\u{2705}',l:'Davomat',p:'teacherattendance'}]},
+      {s:'Moliya', i:[{e:'\u{1F4B0}',l:"Oylik to'lovlar",p:'teacherpayments'}]}
     ],
     stats: [
       {e:'\u{1F465}',c:'green',v:'3',l:"Guruhlarim"},
       {e:'\u{1F39E}\u{FE0F}',c:'navy',v:'54',l:"O'quvchilarim"},
       {e:'\u{1F4C5}',c:'blue',v:'4',l:"Bugungi darslar"},
-      {e:'\u{2705}',c:'green',v:'93%',l:'Davomat'}
+      {e:'\u{2705}',c:'green',v:'93%',l:'Davomat'},
+      {e:'\u{1F4DA}',c:'purple',v:'3',l:'Homework'},
+      {e:'\u{26A0}\u{FE0F}',c:'red',v:'5',l:'Qarzdor'}
     ]
   },
   student: {
@@ -359,6 +362,8 @@ let selectedRole = null;
 let currentPage = 'dashboard';
 let studFilter = 'all';
 let studGroup = 'all';
+let selectedGroup = null;
+let attGroup = null;
 
 // ─── Login / Logout ───
 function selectRole(r) {
@@ -409,6 +414,8 @@ function logout() {
   currentPage = 'dashboard';
   studFilter = 'all';
   studGroup = 'all';
+  selectedGroup = null;
+  attGroup = null;
   document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
   document.getElementById('emailInput').value = '';
   document.getElementById('passwordInput').value = '';
@@ -468,12 +475,14 @@ function renderPageContent() {
 
 function renderPage(r) {
   const P = {
-    dashboard: () => renderDashboard(r), students: renderStudents, teachers: renderTeachers,
+    dashboard: () => selectedRole === 'teacher' ? renderTeacherDashboard(r) : renderDashboard(r), students: renderStudents, teachers: renderTeachers,
     courses: renderCourses, groups: renderGroups, schedule: renderSchedule, attendance: renderAttendance,
     exams: renderExams, payments: renderPayments, reports: renderReports, settings: renderSettings,
-    auditlogs: renderAuditLogs, allusers: renderAllUsers, mygroups: renderMyGroups, mylessons: renderMyGroups,
+    auditlogs: renderAuditLogs, allusers: renderAllUsers, mygroups: renderMyGroups, mylessons: renderMyLessons,
     mycourses: renderMyCourses, myschedule: renderMySchedule, myattendance: renderMyAttendance,
     homework: renderHomework, children: renderChildren,
+    // teacher-specific
+    teacherattendance: renderTeacherAttendance, teacherpayments: renderMonthlyPayments, groupdetail: renderGroupDetail,
     // aliases
     subscriptions: renderAllUsers, analytics: renderReports, debtors: renderPayments, invoices: renderPayments,
     monthlyincome: renderReports, expenses: renderReports, grades: renderStudents, results: renderResults,
@@ -728,14 +737,126 @@ function renderAllUsers() {
 
 
 
+// ─── Teacher Data ───
+const TEACHER_GROUPS = [
+  {id:'IELTS-24', n:'IELTS-24', subject:'IELTS', s:18, m:20, d:'Dush/Chor/Jum', tm:'18:00', sh:'201', students:[{id:'m1',n:'Muhammad Ali'},{id:'m2',n:'Madina Karimova'},{id:'m3',n:'Sardor Aliyev'},{id:'m4',n:'Azizbek Rahimov'},{id:'m5',n:'Javohir Karimov'}]},
+  {id:'ENG-12', n:'ENG-12', subject:'Ingliz tili', s:16, m:20, d:'Sesh/Pay', tm:'11:00', sh:'102', students:[{id:'e1',n:'Dilshod Raximov'},{id:'e2',n:'Malika Toshmatova'},{id:'e3',n:'Nodirbek Sattorov'}]},
+  {id:'IELTS-26', n:'IELTS-26', subject:'IELTS', s:21, m:20, d:'Dush/Chor/Jum', tm:'14:00', sh:'301', students:[{id:'i1',n:'Abdulloh Karimov'},{id:'i2',n:'Anvar Aliyev'},{id:'i3',n:'Olimjon Yusupov'}]}
+];
+const TEACHER_ATT = {
+  'IELTS-24':{m1:'present',m2:'absent',m3:'present',m4:'late',m5:'present'},
+  'ENG-12':{e1:'present',e2:'absent',e3:'present'},
+  'IELTS-26':{i1:'present',i2:'present',i3:'late'}
+};
+const TEACHER_HW = {
+  'IELTS-24':[{t:'IELTS Writing Task 2',due:'22.08.2026',st:'pending'}],
+  'ENG-12':[{t:'Grammar Exercise Ch.5',due:'21.08.2026',st:'done'}],
+  'IELTS-26':[{t:'Vocabulary Test',due:'25.08.2026',st:'pending'}]
+};
+const TEACHER_LESSONS = [
+  {dn:'Dushanba',t:'09:00',g:'IELTS-24',co:'IELTS',sh:'201'},
+  {dn:'Dushanba',t:'14:00',g:'IELTS-26',co:'IELTS',sh:'301'},
+  {dn:'Chorshanba',t:'09:00',g:'IELTS-24',co:'IELTS',sh:'201'},
+  {dn:'Chorshanba',t:'14:00',g:'IELTS-26',co:'IELTS',sh:'301'},
+  {dn:'Juma',t:'09:00',g:'IELTS-24',co:'IELTS',sh:'201'},
+  {dn:'Juma',t:'14:00',g:'IELTS-26',co:'IELTS',sh:'301'},
+  {dn:'Seshanba',t:'11:00',g:'ENG-12',co:'Ingliz tili',sh:'102'},
+  {dn:'Payshanba',t:'11:00',g:'ENG-12',co:'Ingliz tili',sh:'102'}
+];
+const TEACHER_PAID = [
+  {n:'Muhammad Ali',g:'IELTS-24',am:'500,000',dt:'20.08.2026'},
+  {n:'Madina Karimova',g:'IELTS-24',am:'500,000',dt:'18.08.2026'},
+  {n:'Sardor Aliyev',g:'IELTS-24',am:'500,000',dt:'19.08.2026'},
+  {n:'Dilshod Raximov',g:'ENG-12',am:'400,000',dt:'20.08.2026'},
+  {n:'Malika Toshmatova',g:'ENG-12',am:'400,000',dt:'21.08.2026'},
+  {n:'Abdulloh Karimov',g:'IELTS-26',am:'500,000',dt:'17.08.2026'},
+  {n:'Anvar Aliyev',g:'IELTS-26',am:'500,000',dt:'18.08.2026'}
+];
+const ATT_ORDER = ['present','absent','late'];
+function attBadgeHtml(st) {
+  return st === 'present' ? '<span class="badge green">\u2705 Keldi</span>' : st === 'absent' ? '<span class="badge red">\u274C Kelmadi</span>' : '<span class="badge gold">\uD83D\uDFE1 Kechikdi</span>';
+}
+function teacherAttTable(grpId) {
+  const grp = TEACHER_GROUPS.find(g => g.id === grpId);
+  if (!grp) return '';
+  const rows = grp.students.map(s => {
+    const st = TEACHER_ATT[grpId][s.id] || 'present';
+    return `<tr><td><strong>${s.n}</strong></td><td><span class="badge navy">${grpId}</span></td><td><span style="cursor:pointer;display:inline-block" onclick="cycleAtt('${grpId}','${s.id}')">${attBadgeHtml(st)}</span></td></tr>`;
+  }).join('');
+  return `<div class="card"><div class="card-title">\u2705 Davomat \u2014 ${grpId}</div><table class="table"><thead><tr><th>O'quvchi</th><th>Guruh</th><th>Holat (bosib o'zgartiring)</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function selectGroup(id) { selectedGroup = id; currentPage = 'groupdetail'; renderPageContent(); }
+function selectAttGroup(id) { attGroup = id; renderPageContent(); }
+function cycleAtt(g, sid) {
+  const cur = TEACHER_ATT[g][sid] || 'present';
+  const next = ATT_ORDER[(ATT_ORDER.indexOf(cur) + 1) % ATT_ORDER.length];
+  TEACHER_ATT[g][sid] = next;
+  renderPageContent();
+}
+function addHw(g) {
+  const t = prompt('Homework nomi:');
+  if (!t) return;
+  (TEACHER_HW[g] = TEACHER_HW[g] || []).push({t:t, due:'28.08.2026', st:'pending'});
+  renderPageContent();
+}
+function removeHw(g, idx) {
+  TEACHER_HW[g].splice(idx, 1);
+  renderPageContent();
+}
 function renderMyGroups() {
-  const groups = [
-    {n:'IELTS-24',s:18,m:20,d:'Dush/Chor/Jum',tm:'18:00',sh:'201'},
-    {n:'ENG-12',s:16,m:20,d:'Sesh/Pay',tm:'11:00',sh:'102'},
-    {n:'IELTS-26',s:21,m:20,d:'Dush/Chor/Jum',tm:'14:00',sh:'301'},
-  ];
-  const cards = groups.map(g => `<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong>${g.n}</strong><span class="badge ${g.s >= g.m ? 'red' : 'green'}">${g.s}/${g.m}</span></div><div style="font-size:12px;color:var(--text2)">${g.d} ${g.tm} \u00B7 Xona ${g.sh}</div></div>`).join('');
-  return `<div class="card" style="margin-bottom:16px"><div class="card-title">\u{1F465} Mening guruhlarim</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px">${cards}</div></div>`;
+  const cards = TEACHER_GROUPS.map(g => `<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer" onclick="selectGroup('${g.id}')"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong>${g.n}</strong><span class="badge ${g.s >= g.m ? 'red' : 'green'}">${g.s}/${g.m}</span></div><div style="font-size:12px;color:var(--text2);margin-bottom:10px">${g.subject} \u00B7 ${g.d} ${g.tm} \u00B7 Xona ${g.sh}</div><span class="badge blue">Kirish \u2192</span></div>`).join('');
+  return `<div class="card" style="margin-bottom:16px"><div class="card-title">\u{1F465} Mening guruhlarim</div><p style="font-size:13px;color:var(--text2);margin-bottom:12px">Guruhga bosing \u2014 ma'lumot, davomat va homework</p><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px">${cards}</div></div>`;
+}
+function renderGroupDetail() {
+  const grp = TEACHER_GROUPS.find(g => g.id === selectedGroup) || TEACHER_GROUPS[0];
+  const present = grp.students.filter(s => (TEACHER_ATT[grp.id][s.id] || 'present') === 'present').length;
+  const rate = Math.round((present / grp.students.length) * 100);
+  const hw = TEACHER_HW[grp.id] || [];
+  const hwRows = hw.map((h, idx) => {
+    const badge = h.st === 'done' ? '<span class="badge green">Bajarildi</span>' : '<span class="badge gold">Kutilmoqda</span>';
+    return `<tr><td><strong>${h.t}</strong></td><td>${h.due}</td><td>${badge}</td><td><button class="logout-btn" style="background:rgba(231,76,60,.12);color:var(--red);border:none;border-radius:8px;padding:5px 9px;cursor:pointer" onclick="removeHw('${grp.id}',${idx})">\u{1F5D1}</button></td></tr>`;
+  }).join('');
+  return `<div style="margin-bottom:16px"><button class="logout-btn" style="background:var(--bg);color:var(--text2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer" onclick="currentPage='mygroups';renderPageContent()">\u2190 Guruhlarim</button></div>
+  <div class="card" style="margin-bottom:16px"><div class="card-title">\u{1F465} ${grp.n}</div><div class="rgrid-4">
+    <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center"><div style="font-size:11px;color:var(--muted)">FAN</div><div style="font-size:16px;font-weight:800;color:var(--navy)">${grp.subject}</div></div>
+    <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center"><div style="font-size:11px;color:var(--muted)">DARS</div><div style="font-size:16px;font-weight:800;color:var(--green)">${grp.d} ${grp.tm}</div></div>
+    <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center"><div style="font-size:11px;color:var(--muted)">XONA</div><div style="font-size:16px;font-weight:800;color:var(--blue)">${grp.sh}</div></div>
+    <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center"><div style="font-size:11px;color:var(--muted)">DAVOMAT</div><div style="font-size:16px;font-weight:800;color:var(--green)">${rate}%</div></div>
+  </div></div>
+  ${teacherAttTable(grp.id)}
+  <div class="card" style="margin-top:16px"><div class="card-title">\u{1F4DA} Homework</div>
+  <button style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:600;cursor:pointer;margin-bottom:12px" onclick="addHw('${grp.id}')">+ Homework qo'shish</button>
+  <table class="table"><thead><tr><th>Topshiriq</th><th>Muddat</th><th>Holat</th><th></th></tr></thead><tbody>${hwRows || '<tr><td colspan="4" style="text-align:center;color:var(--muted)">Homework yo\u2019q</td></tr>'}</tbody></table></div>`;
+}
+function renderMyLessons() {
+  const days = ['Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
+  const grid = days.map(dn => {
+    const ls = TEACHER_LESSONS.filter(l => l.dn === dn);
+    const inner = ls.length ? ls.map(l => `<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px"><div style="font-weight:700;font-size:13px">${l.t} \u00B7 ${l.g}</div><div style="font-size:11px;color:var(--text2)">${l.co} \u00B7 Xona ${l.sh}</div></div>`).join('') : '<div style="font-size:11px;color:var(--muted)">Dars yo\u2019q</div>';
+    return `<div><div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px">${dn}</div>${inner}</div>`;
+  }).join('');
+  return `<div style="margin-bottom:20px"><h3 style="font-size:16px;font-weight:700">\u{1F4C5} Darslarim \u2014 1 hafta</h3></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px">${grid}</div>`;
+}
+function renderTeacherAttendance() {
+  const btns = TEACHER_GROUPS.map(g => `<span class="badge ${attGroup === g.id ? 'green' : 'navy'}" style="cursor:pointer;padding:8px 14px;margin:0 8px 8px 0" onclick="selectAttGroup('${g.id}')">${g.n}</span>`).join('');
+  return `<div style="margin-bottom:20px"><h3 style="font-size:16px;font-weight:700">\u{2705} Davomat</h3><p style="font-size:13px;color:var(--text2)">Guruh tanlang, keyin holatni bosib o'zgartiring</p></div>
+  <div style="margin-bottom:16px">${btns}</div>
+  ${attGroup ? teacherAttTable(attGroup) : '<div class="card" style="text-align:center;color:var(--muted);padding:24px">Guruh tanlanmagan</div>'}`;
+}
+function renderMonthlyPayments() {
+  const rows = TEACHER_PAID.map(p => `<tr><td><strong>${p.n}</strong></td><td><span class="badge navy">${p.g}</span></td><td>${p.am}</td><td>${p.dt}</td><td><span class="badge green">To'langan</span></td></tr>`).join('');
+  return `<div style="margin-bottom:20px"><h3 style="font-size:16px;font-weight:700">\u{1F4B0} Oylik to'lovlar</h3><p style="font-size:13px;color:var(--text2)">Bu oy to'lagan o'quvchilar</p></div>
+  <div class="card"><table class="table"><thead><tr><th>O'quvchi</th><th>Guruh</th><th>Miqdor</th><th>Sana</th><th>Holat</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function renderTeacherDashboard(r) {
+  const s = r.stats || [];
+  const statsHtml = s.map(st => `<div class="stat-card"><div class="stat-top"><div class="stat-icon ${st.c}">${st.e}</div></div><div class="stat-value">${st.v}</div><div class="stat-label">${st.l}</div></div>`).join('');
+  const grpCards = TEACHER_GROUPS.map(g => `<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer" onclick="selectGroup('${g.id}')"><strong>${g.n}</strong><div style="font-size:11px;color:var(--text2);margin-top:4px">${g.subject} \u00B7 ${g.s}/${g.m}</div></div>`).join('');
+  const lessonRows = TEACHER_LESSONS.slice(0, 4).map(l => `<tr><td>${l.dn}</td><td>${l.t}</td><td><span class="badge navy">${l.g}</span></td><td>${l.co}</td></tr>`).join('');
+  return `<div class="welcome"><div class="w-left"><h3>${r.emoji} Xush kelibsiz, ${r.name}!</h3><p>Radian O'quv Markazi</p></div></div>
+  <div class="stats-grid">${statsHtml}</div>
+  <div class="two-col"><div class="card"><div class="card-title">\u{1F465} Mening guruhlarim</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">${grpCards}</div></div>
+  <div class="card"><div class="card-title">\u{1F4C5} Darslarim (jadval)</div><table class="table"><thead><tr><th>Kun</th><th>Vaqt</th><th>Guruh</th><th>Fan</th></tr></thead><tbody>${lessonRows}</tbody></table></div></div>`;
 }
 
 function renderMyCourses() {
